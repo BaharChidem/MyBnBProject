@@ -891,6 +891,12 @@ public class Database {
         return allReviews;
     }
 
+    public void view(String filter, String query) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("CREATE VIEW "+filter+" AS ("+query+")");
+        stmt.execute();
+    }
+
+
 
 }
 

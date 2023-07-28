@@ -18,7 +18,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password = "Bhr_1232003";
+    private static final String Password = "Pilyar23$";
     public static User current_user=null;
     static Database data;
 
@@ -349,6 +349,7 @@ public class Main {
         System.out.println("2:Search by Postalcode");
         System.out.println("3:Search by Address");
         int num = scanner.nextInt();
+        StringBuilder filter_query = new StringBuilder();
         ArrayList<Listing>Listing = new ArrayList<>();
         if(num==1){
             Listing=search_by_coords();
@@ -390,6 +391,47 @@ public class Main {
         for (Listing listing :coords) {
             Address address = listing.address();
             System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(),listing.distance());
+        }
+        StringBuilder filter_query= new StringBuilder();
+        filter_query.append("SELECT L.*, A.*, ST_Distance_Sphere(point(Longitude,Latitude), point("+longitude+", "+latitude+")) as Distance FROM Listings L JOIN Address A ON L.AID=A.AID HAVING Distance <"+dist+" ORDER BY Distance ASC ");
+        data.view("Default",filter_query.toString());
+        System.out.println("Search by Filter 1:Yes or 2:No");
+        int num3 = scanner.nextInt();
+        if (num3==1){
+            System.out.println("Filter by date range 1:Yes or 2:No");
+            int fil1 = scanner.nextInt();
+            if(fil1==1) {
+                System.out.println("Enter the start date (YYYY-MM-DD)");
+                String start = scanner.nextLine();
+                System.out.println("Enter the end date (YYYY-MM-DD)");
+                String end = scanner.nextLine();
+                LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
+                LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
+
+                filter_query.append("SELECT D.* FROM Default D JOIN Listings L ON D.LID = L.LID JOIN Calendar C ON D.LID=C.LID WHERE C.Availability='[OPEN]' AND C.Date BETWEEN " + startDate + " AND " + endDate + " GROUP BY D.LID HAVING COUNT(*) DATEDIFF(" + endDate + ", " + startDate + ") + 1");
+                data.view("Filter1", filter_query.toString());
+            }
+            else{
+                data.view("Filter1","SELECT * FROM DEFAULT");
+            }
+
+            System.out.println("Filter by price range 1:Yes or 2:No");
+            int fil2 = scanner.nextInt();
+            StringBuilder filter_query2 =new StringBuilder();
+            if(fil2==1){
+                System.out.println("Enter the Minimum price range");
+                double min= scanner.nextDouble();
+                System.out.println("Enter the Maximum price range");
+                double max = scanner.nextDouble();
+                filter_query2.append("SELECT F.* FROM Filter1 F JOIN(SELECT L.LID FROM LISTINGS L JOIN CALENDAR C ON L.LID = C.LID GROUP BY L.LID HAVING AVG(Price) BETWEEN "+min+" AND "+max+")AS subquery ON F.LID = subquery.LID");
+                data.view("Filter2",filter_query2.toString());
+            }
+            else{
+                data.view("Filter2","SELECT * FROM Filter1");
+            }
+
+//            System.out.println("Filter by Amenities 1:Yes or 2:No");
+//            int fil3 = scanner.nextInt();
         }
        return coords;
 
