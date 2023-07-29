@@ -83,7 +83,7 @@ DROP TABLE IF EXISTS AmenitiesListing;
 CREATE TABLE AmenitiesListing (
     ALID INT AUTO_INCREMENT PRIMARY KEY,
     LID INT,
-    Amenities_ID INT,
+    Amenities_ID INT
 );
 
 

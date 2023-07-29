@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password = "Pilyar23$";
+    private static final String Password = "Bhr_1232003";
     public static User current_user=null;
     static Database data;
 
@@ -209,11 +209,11 @@ public class Main {
             System.out.println("Not a Valid type");
             return;
         }
-        System.out.println("Enter the type of place");
-        System.out.println("1:Entire place");
-        System.out.println("2:Room");
-        System.out.println("3:Shared Room");
-        int num1 = scanner.nextInt();
+//        System.out.println("Enter the type of place");
+//        System.out.println("1:Entire place");
+//        System.out.println("2:Room");
+//        System.out.println("3:Shared Room");
+//        int num1 = scanner.nextInt();
         System.out.println("Enter the Latitude of the Listing (-90 to 90)");
         double lat= scanner.nextDouble();
         System.out.println("Enter the Longitude of the Listing (-180 to 180)");
@@ -395,6 +395,7 @@ public class Main {
         data.remove_view("Filter0");
         data.remove_view("Filter1");
         data.remove_view("Filter2");
+        data.remove_view("Filter3");
         ArrayList<Listing> listings;
         StringBuilder filter_query0 = new StringBuilder();
         filter_query0.append("SELECT *, ST_Distance_Sphere(point(Longitude, Latitude), point("+longitude+", "+latitude+")) as Distance FROM Listings JOIN Address USING (AID) WHERE Status='[ACTIVE]' Having Distance <= " + dist + " ORDER BY Distance");
@@ -437,19 +438,35 @@ public class Main {
             } else {
                 data.view("Filter2", "SELECT * FROM Filter1");
             }
-            int fil3= scanner.nextInt();
             System.out.println("Filter by Amenities 1:Yes or 2:No");
+            int fil3= scanner.nextInt();
+            StringBuilder filter_query3 = new StringBuilder();
+            scanner.nextLine();
             if(fil3==1){
                 set_of_amenities();
                 System.out.println(" Enter the amenities by which you would like to filter the results");
                 String string = scanner.nextLine();
                 String [] amenities= string.split(",");
                 StringBuilder set = new StringBuilder();
+                set.append("(");
+                for (int i=0; i<amenities.length; i++) {
+                    if (i==0) {
+                        set.append("'" + amenities[i].trim() + "'");
+                    } else {
+                        set.append("," + "'" + amenities[i].trim() + "'");
+                    }
+                }
+                set.append(")");
+                filter_query3.append("SELECT * FROM Filter2 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ amenities.length +")");
+                data.view("Filter3", filter_query3.toString());
+            }
+            else{
+                data.view("Filter3", "SELECT * FROM Filter2");
             }
 
 
 
-            PreparedStatement s = data.get_queries("Filter2");
+            PreparedStatement s = data.get_queries("Filter3");
             listings = data.Listings_from_view(s);
 
             System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status","Distance");
@@ -461,6 +478,7 @@ public class Main {
             data.remove_view("Filter0");
             data.remove_view("Filter1");
             data.remove_view("Filter2");
+            data.remove_view("Filter3");
 
             return listings;
         }
@@ -480,6 +498,7 @@ public class Main {
         data.remove_view("Filter3");
         data.remove_view("Filter4");
         data.remove_view("Filter5");
+        data.remove_view("Filter6");
         ArrayList<Listing> listings;
         StringBuilder filter_query0 = new StringBuilder();
         filter_query0.append("SELECT * FROM LISTINGS NATURAL JOIN ADDRESS WHERE Status='[ACTIVE]'AND SUBSTRING(Postal_code,1,3) ='"+code+"'");
@@ -522,14 +541,40 @@ public class Main {
             } else {
                 data.view("Filter5", "SELECT * FROM Filter4");
             }
+            System.out.println("Filter by Amenities 1:Yes or 2:No");
+            int fil3= scanner.nextInt();
+            StringBuilder filter_query3 = new StringBuilder();
+            scanner.nextLine();
+            if(fil3==1){
+                set_of_amenities();
+                System.out.println(" Enter the amenities by which you would like to filter the results");
+                String string = scanner.nextLine();
+                String [] amenities= string.split(",");
+                StringBuilder set = new StringBuilder();
+                set.append("(");
+                for (int i=0; i<amenities.length; i++) {
+                    if (i==0) {
+                        set.append("'" + amenities[i].trim() + "'");
+                    } else {
+                        set.append("," + "'" + amenities[i].trim() + "'");
+                    }
+                }
+                set.append(")");
+                filter_query3.append("SELECT * FROM Filter5 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ amenities.length +")");
+                data.view("Filter6", filter_query3.toString());
+            }
+            else{
+                data.view("Filter6", "SELECT * FROM Filter5");
+            }
 
-            PreparedStatement s = data.get_queries("Filter5");
+            PreparedStatement s = data.get_queries("Filter6");
             listings = data.Listings_from_postal(s);
 
             print_table(listings);
             data.remove_view("Filter3");
             data.remove_view("Filter4");
             data.remove_view("Filter5");
+            data.remove_view("Filter6");
 
             return listings;
         }
@@ -552,6 +597,7 @@ public class Main {
         data.remove_view("Filter3");
         data.remove_view("Filter4");
         data.remove_view("Filter5");
+        data.remove_view("Filter6");
         ArrayList<Listing> listings;
         StringBuilder filter_query0 = new StringBuilder();
         filter_query0.append("SELECT * FROM LISTINGS NATURAL JOIN ADDRESS WHERE Status='[ACTIVE]'AND Street='"+street+"' AND City= '"+city+"'AND Country='"+country+"'");
@@ -594,14 +640,41 @@ public class Main {
             } else {
                 data.view("Filter5", "SELECT * FROM Filter4");
             }
+            System.out.println("Filter by Amenities 1:Yes or 2:No");
+            int fil3= scanner.nextInt();
+            StringBuilder filter_query3 = new StringBuilder();
+            scanner.nextLine();
+            if(fil3==1){
+                set_of_amenities();
+                System.out.println(" Enter the amenities by which you would like to filter the results");
+                String string = scanner.nextLine();
+                String [] amenities= string.split(",");
+                StringBuilder set = new StringBuilder();
+                set.append("(");
+                for (int i=0; i<amenities.length; i++) {
+                    if (i==0) {
+                        set.append("'" + amenities[i].trim() + "'");
+                    } else {
+                        set.append("," + "'" + amenities[i].trim() + "'");
+                    }
+                }
+                set.append(")");
+                filter_query3.append("SELECT * FROM Filter5 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ amenities.length +")");
+                data.view("Filter6", filter_query3.toString());
+            }
+            else{
+                data.view("Filter6", "SELECT * FROM Filter5");
+            }
 
-            PreparedStatement s = data.get_queries("Filter5");
+
+            PreparedStatement s = data.get_queries("Filter6");
             listings = data.Listings_from_postal(s);
 
             print_table(listings);
             data.remove_view("Filter3");
             data.remove_view("Filter4");
             data.remove_view("Filter5");
+            data.remove_view("Filter6");
 
             return listings;
         }
