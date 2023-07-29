@@ -7,6 +7,7 @@ import opennlp.tools.parser.ParserModel;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password = "Bhr_1232003";
+    private static final String Password = "Pilyar23$";
     public static User current_user=null;
     static Database data;
 
@@ -384,7 +385,6 @@ public class Main {
             dist=dist*1000;
 
         }
-
         System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status","Distance");
         ArrayList<Listing>coords=data.search_coords(latitude,longitude,dist);
         // Print each Listing in a table format
@@ -392,48 +392,80 @@ public class Main {
             Address address = listing.address();
             System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(),listing.distance());
         }
+        data.remove_view("Filter0");
+        data.remove_view("Filter1");
+        data.remove_view("Filter2");
+        ArrayList<Listing> listings;
         StringBuilder filter_query0 = new StringBuilder();
-        filter_query0.append("SELECT L.*, A.*, ST_Distance_Sphere(point(Longitude,Latitude), point("+longitude+", "+latitude+")) as Distance FROM Listings L JOIN Address A ON L.AID=A.AID HAVING Distance <"+dist+" ORDER BY Distance ASC ");
+        filter_query0.append("SELECT *, ST_Distance_Sphere(point(Longitude, Latitude), point("+longitude+", "+latitude+")) as Distance FROM Listings JOIN Address USING (AID) WHERE Status='[ACTIVE]' Having Distance <= " + dist + " ORDER BY Distance");
         data.view("Filter0",filter_query0.toString());
         System.out.println("Search by Filter 1:Yes or 2:No");
         int num3 = scanner.nextInt();
-        if (num3==1){
+        if (num3==1) {
             System.out.println("Filter by date range 1:Yes or 2:No");
             int fil1 = scanner.nextInt();
-            StringBuilder filter_query1 =new StringBuilder();
-            if(fil1==1) {
+            scanner.nextLine();
+            StringBuilder filter_query1 = new StringBuilder();
+            if (fil1 == 1) {
                 System.out.println("Enter the start date (YYYY-MM-DD)");
                 String start = scanner.nextLine();
+                //scanner.nextLine();
                 System.out.println("Enter the end date (YYYY-MM-DD)");
+                //scanner.nextLine();
                 String end = scanner.nextLine();
                 LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
                 LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
 
-                filter_query1.append("SELECT D.* FROM Filter0 D JOIN Listings L ON D.LID = L.LID JOIN Calendar C ON D.LID=C.LID WHERE C.Availability='[OPEN]' AND C.Date BETWEEN " + startDate + " AND " + endDate + " GROUP BY D.LID HAVING COUNT(*) DATEDIFF(" + endDate + ", " + startDate + ") + 1");
+                filter_query1.append("SELECT D.* FROM Filter0 D JOIN Listings L ON D.LID = L.LID JOIN Calendar C ON D.LID=C.LID WHERE C.Availability='[OPEN]' AND C.Date BETWEEN '" + startDate + "' AND '" + endDate + "' GROUP BY D.LID HAVING COUNT(*) >= DATEDIFF('" + endDate + "', '" + startDate + "') + 1");
                 data.view("Filter1", filter_query1.toString());
-            }
-            else{
-                data.view("Filter1","SELECT * FROM Filter0");
+                //listings = data.Listings_from_view(filter_query1.toString());
+            } else {
+                data.view("Filter1", "SELECT * FROM Filter0");
+               // listings = data.Listings_from_view(filter_query0.toString());
             }
 
-            System.out.println("Filter by price range 1:Yes or 2:No");
+            System.out.println("Filter by Price range 1:Yes or 2:No");
             int fil2 = scanner.nextInt();
-            StringBuilder filter_query2 =new StringBuilder();
-            if(fil2==1){
+            StringBuilder filter_query2 = new StringBuilder();
+            if (fil2 == 1) {
                 System.out.println("Enter the Minimum price range");
-                double min= scanner.nextDouble();
+                double min = scanner.nextDouble();
                 System.out.println("Enter the Maximum price range");
                 double max = scanner.nextDouble();
-                filter_query2.append("SELECT F.* FROM Filter1 F JOIN(SELECT L.LID FROM LISTINGS L JOIN CALENDAR C ON L.LID = C.LID GROUP BY L.LID HAVING AVG(Price) BETWEEN "+min+" AND "+max+")AS subquery ON F.LID = subquery.LID");
-                data.view("Filter2",filter_query2.toString());
+                filter_query2.append("SELECT F.* FROM Filter1 F JOIN(SELECT L.LID FROM LISTINGS L JOIN CALENDAR C ON L.LID = C.LID GROUP BY L.LID HAVING AVG(Price) BETWEEN " + min + " AND " + max + ")AS subquery ON F.LID = subquery.LID");
+                data.view("Filter2", filter_query2.toString());
+            } else {
+                data.view("Filter2", "SELECT * FROM Filter1");
             }
-            else{
-                data.view("Filter2","SELECT * FROM Filter1");
+            int fil3= scanner.nextInt();
+            System.out.println("Filter by Amenities 1:Yes or 2:No");
+            if(fil3==1){
+                set_of_amenities();
+                System.out.println(" Enter the amenities by which you would like to filter the results");
+                String string = scanner.nextLine();
+                String [] amenities= string.split(",");
+                StringBuilder set = new StringBuilder();
             }
 
-//            System.out.println("Filter by Amenities 1:Yes or 2:No");
-//            int fil3 = scanner.nextInt();
+
+
+            PreparedStatement s = data.get_queries("Filter2");
+            listings = data.Listings_from_view(s);
+
+            System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status","Distance");
+            for (Listing listing :listings) {
+                Address address = listing.address();
+                double km = listing.distance()/1000;
+                System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(),km);
+            }
+            data.remove_view("Filter0");
+            data.remove_view("Filter1");
+            data.remove_view("Filter2");
+
+            return listings;
         }
+            // System.out.println("Filter by Amenities 1:Yes or 2:No");
+//         int fil3 = scanner.nextInt();
        return coords;
 
     }
@@ -442,8 +474,65 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter Postal Code");
         String postalcode = scanner.nextLine();
+        String code = postalcode.toUpperCase().trim().substring(0,3);
         ArrayList<Listing>post_listing= data.search_postalcode(postalcode);
         print_table(post_listing);
+        data.remove_view("Filter3");
+        data.remove_view("Filter4");
+        data.remove_view("Filter5");
+        ArrayList<Listing> listings;
+        StringBuilder filter_query0 = new StringBuilder();
+        filter_query0.append("SELECT * FROM LISTINGS NATURAL JOIN ADDRESS WHERE Status='[ACTIVE]'AND SUBSTRING(Postal_code,1,3) ='"+code+"'");
+        data.view("Filter3",filter_query0.toString());
+        System.out.println("Search by Filter 1:Yes or 2:No");
+        int num3 = scanner.nextInt();
+        if (num3==1) {
+            System.out.println("Filter by date range 1:Yes or 2:No");
+            int fil1 = scanner.nextInt();
+            scanner.nextLine();
+            StringBuilder filter_query1 = new StringBuilder();
+            if (fil1 == 1) {
+                System.out.println("Enter the start date (YYYY-MM-DD)");
+                String start = scanner.nextLine();
+                //scanner.nextLine();
+                System.out.println("Enter the end date (YYYY-MM-DD)");
+                //scanner.nextLine();
+                String end = scanner.nextLine();
+                LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
+                LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
+
+                filter_query1.append("SELECT D.* FROM Filter3 D JOIN Listings L ON D.LID = L.LID JOIN Calendar C ON D.LID=C.LID WHERE C.Availability='[OPEN]' AND C.Date BETWEEN '" + startDate + "' AND '" + endDate + "' GROUP BY D.LID HAVING COUNT(*) >= DATEDIFF('" + endDate + "', '" + startDate + "') + 1");
+                data.view("Filter4", filter_query1.toString());
+                //listings = data.Listings_from_view(filter_query1.toString());
+            } else {
+                data.view("Filter4", "SELECT * FROM Filter3");
+                // listings = data.Listings_from_view(filter_query0.toString());
+            }
+
+            System.out.println("Filter by price range 1:Yes or 2:No");
+            int fil2 = scanner.nextInt();
+            StringBuilder filter_query2 = new StringBuilder();
+            if (fil2 == 1) {
+                System.out.println("Enter the Minimum price range");
+                double min = scanner.nextDouble();
+                System.out.println("Enter the Maximum price range");
+                double max = scanner.nextDouble();
+                filter_query2.append("SELECT F.* FROM Filter4 F JOIN(SELECT L.LID FROM LISTINGS L JOIN CALENDAR C ON L.LID = C.LID GROUP BY L.LID HAVING AVG(Price) BETWEEN " + min + " AND " + max + ")AS subquery ON F.LID = subquery.LID");
+                data.view("Filter5", filter_query2.toString());
+            } else {
+                data.view("Filter5", "SELECT * FROM Filter4");
+            }
+
+            PreparedStatement s = data.get_queries("Filter5");
+            listings = data.Listings_from_postal(s);
+
+            print_table(listings);
+            data.remove_view("Filter3");
+            data.remove_view("Filter4");
+            data.remove_view("Filter5");
+
+            return listings;
+        }
         return post_listing;
 
     }
@@ -460,8 +549,72 @@ public class Main {
         String country = scanner.nextLine();
         ArrayList<Listing>address_listing= data.search_address(street,city,country);
         print_table(address_listing);
+        data.remove_view("Filter3");
+        data.remove_view("Filter4");
+        data.remove_view("Filter5");
+        ArrayList<Listing> listings;
+        StringBuilder filter_query0 = new StringBuilder();
+        filter_query0.append("SELECT * FROM LISTINGS NATURAL JOIN ADDRESS WHERE Status='[ACTIVE]'AND Street='"+street+"' AND City= '"+city+"'AND Country='"+country+"'");
+        data.view("Filter3",filter_query0.toString());
+        System.out.println("Search by Filter 1:Yes or 2:No");
+        int num3 = scanner.nextInt();
+        if (num3==1) {
+            System.out.println("Filter by date range 1:Yes or 2:No");
+            int fil1 = scanner.nextInt();
+            scanner.nextLine();
+            StringBuilder filter_query1 = new StringBuilder();
+            if (fil1 == 1) {
+                System.out.println("Enter the start date (YYYY-MM-DD)");
+                String start = scanner.nextLine();
+                //scanner.nextLine();
+                System.out.println("Enter the end date (YYYY-MM-DD)");
+                //scanner.nextLine();
+                String end = scanner.nextLine();
+                LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
+                LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
+
+                filter_query1.append("SELECT D.* FROM Filter3 D JOIN Listings L ON D.LID = L.LID JOIN Calendar C ON D.LID=C.LID WHERE C.Availability='[OPEN]' AND C.Date BETWEEN '" + startDate + "' AND '" + endDate + "' GROUP BY D.LID HAVING COUNT(*) >= DATEDIFF('" + endDate + "', '" + startDate + "') + 1");
+                data.view("Filter4", filter_query1.toString());
+                //listings = data.Listings_from_view(filter_query1.toString());
+            } else {
+                data.view("Filter4", "SELECT * FROM Filter3");
+                // listings = data.Listings_from_view(filter_query0.toString());
+            }
+
+            System.out.println("Filter by price range 1:Yes or 2:No");
+            int fil2 = scanner.nextInt();
+            StringBuilder filter_query2 = new StringBuilder();
+            if (fil2 == 1) {
+                System.out.println("Enter the Minimum price range");
+                double min = scanner.nextDouble();
+                System.out.println("Enter the Maximum price range");
+                double max = scanner.nextDouble();
+                filter_query2.append("SELECT F.* FROM Filter4 F JOIN(SELECT L.LID FROM LISTINGS L JOIN CALENDAR C ON L.LID = C.LID GROUP BY L.LID HAVING AVG(Price) BETWEEN " + min + " AND " + max + ")AS subquery ON F.LID = subquery.LID");
+                data.view("Filter5", filter_query2.toString());
+            } else {
+                data.view("Filter5", "SELECT * FROM Filter4");
+            }
+
+            PreparedStatement s = data.get_queries("Filter5");
+            listings = data.Listings_from_postal(s);
+
+            print_table(listings);
+            data.remove_view("Filter3");
+            data.remove_view("Filter4");
+            data.remove_view("Filter5");
+
+            return listings;
+        }
 
         return address_listing;
+    }
+
+    public static void set_of_amenities(){
+        System.out.println("Here are the set amenities to search from ");
+        System.out.println("1.Type of place: Entire Place , Shared Room , Room ");
+        System.out.println("2.Essentials : Wifi,TV,Kitchen,Washer,Free parking, Air conditioning, Dedicated workspace");
+        System.out.println("3. Standout : Pool,Hot tub, Outdoor Dining area ,Beach Access, Lakes access, Gym,Prime locations, Public transport access");
+        System.out.println("4. Safety: Smoke alarm, First aid kit, Fire extinguisher, CO alarm");
     }
     public static void print_table(ArrayList<Listing> List){
         System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "Index", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status");
@@ -551,6 +704,7 @@ public class Main {
         LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
         System.out.println("Here are the Availabilities:");
         ArrayList<Calendar>availability=data.Availabilities(LID,startDate,endDate);
+        int size = availability.size();
         System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
 
         // Print each Listing in a table format
@@ -559,11 +713,28 @@ public class Main {
             System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
         }
-        if( availability.size()==0){
-            System.out.print("No Availability for this range of dates");
+        while(size==0){
+            System.out.println("No Availability for this range of dates");
+            System.out.println("Enter the new range of dates");
+            System.out.println("Enter the Start date (YYYY-MM-DD):");
+            String start2 = scanner.nextLine();
+
+            System.out.println("Enter the End date (YYYY-MM-DD):");
+            String end2 = scanner.nextLine();
+
+            LocalDate startDate2 = LocalDate.parse(start2, DateTimeFormatter.ISO_LOCAL_DATE);
+            LocalDate endDate2 = LocalDate.parse(end2, DateTimeFormatter.ISO_LOCAL_DATE);
+            System.out.println("Here are the Availabilities:");
+            ArrayList<Calendar>availability2=data.Availabilities(LID,startDate2,endDate2);
+            System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
+            for (Calendar calendar :availability2) {
+                //System.out.printf("%-5d %-10s %-10f %-10f %-10s %n",calendar.CID(),calendar.LID(),calendar.availability(),calendar.Price(),calendar.date());
+                System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+            }
+            size=availability2.size();
         }
-        else {
-            System.out.println("Would you like to make a reservation at this listing on the date range entered?(1:YES | 2:NO)");
+        System.out.println("Would you like to make a reservation at this listing on the date range entered?(1:YES | 2:NO)");
 
             int num3 = scanner.nextInt();
             if (num3 == 1) {
@@ -577,7 +748,7 @@ public class Main {
                 }
             }
         }
-    }
+
 
     public static void cancel_reservation(ArrayList<Reservation> reservations) throws SQLException {
         Scanner scanner = new Scanner(System.in);
@@ -798,6 +969,8 @@ public class Main {
         for (Parse child : p.getChildren())
             NounPhrases(child, noun_phrases);
     }
+
+
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
         Class.forName(dbClassName);

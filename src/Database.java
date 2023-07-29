@@ -434,8 +434,10 @@ public class Database {
             String postal_code = rs.getString("Postal_code");
             String status = rs.getString("Status");
             String type = rs.getString("Type");
+            double dist = rs.getDouble("Distance");
+            double km = dist/1000;
             Address listing_address = new Address(AID, city, Country, postal_code, street);
-            coords.add(new Listing(LID, type, Latitude, Longitude, listing_address, status,distance));
+            coords.add(new Listing(LID, type, Latitude, Longitude, listing_address, status,km));
         }
         return coords;
 
@@ -890,15 +892,86 @@ public class Database {
         }
         return allReviews;
     }
+    //-------------------------------------------------------- FILTERS FOR SEARCH ----------------------------------------------------
 
     public void view(String filter, String query) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement("CREATE VIEW "+filter+" AS ("+query+")");
         stmt.execute();
     }
 
+    public void remove_view(String viewName) throws SQLException {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("DROP VIEW IF EXISTS " + viewName);
+        }
+    }
+    public PreparedStatement get_queries (String view) throws SQLException {
+            return connection.prepareStatement("(SELECT L.* FROM " + view + " L, Calendar C " +
+                    "WHERE L.LID=C.LID GROUP BY L.LID) ");
+        }
+
+    public ArrayList<Listing> Listings_from_view(PreparedStatement query) throws SQLException {
+        //PreparedStatement stmt = connection.prepareStatement(query.);
+        ArrayList<Listing> result = new ArrayList<>();
+        //ResultSet rs = stmt.executeQuery();
+        ResultSet rs = query.executeQuery();
+        while(rs.next()) {
+            int lid = rs.getInt("LID");
+            String type = rs.getString("Type");
+            double latitude = rs.getDouble("Latitude");
+            double longitude = rs.getDouble("Longitude");
+
+            int aid = rs.getInt("AID");
+           String street = rs.getString("Street");
+            String city = rs.getString("City");
+            String country = rs.getString("Country");
+            String postalCode = rs.getString("Postal_code");
+            String status = rs.getString("Status");
+            Double distance = rs.getDouble("Distance");
+            Address newAddress = new Address(aid, street, city, country, postalCode);
+
+            //double price = rs.getDouble("Price");
+            //String aux = price == -1 ? "" : "Price: " + price;
+
+            result.add(new Listing(lid, type, latitude, longitude, newAddress, status,distance));
+        }
+
+        return result;
+    }
+
+    public ArrayList<Listing> Listings_from_postal(PreparedStatement query) throws SQLException {
+        //PreparedStatement stmt = connection.prepareStatement(query.);
+        ArrayList<Listing> result = new ArrayList<>();
+        //ResultSet rs = stmt.executeQuery();
+        ResultSet rs = query.executeQuery();
+        while(rs.next()) {
+            int lid = rs.getInt("LID");
+            String type = rs.getString("Type");
+            double latitude = rs.getDouble("Latitude");
+            double longitude = rs.getDouble("Longitude");
+
+            int aid = rs.getInt("AID");
+            String street = rs.getString("Street");
+            String city = rs.getString("City");
+            String country = rs.getString("Country");
+            String postalCode = rs.getString("Postal_code");
+            String status = rs.getString("Status");
+            //Double distance = rs.getDouble("Distance");
+            Address newAddress = new Address(aid, street, city, country, postalCode);
+
+            //double price = rs.getDouble("Price");
+            //String aux = price == -1 ? "" : "Price: " + price;
+            result.add(new Listing(lid, type, latitude, longitude, newAddress, status));
+        }
+
+        return result;
+    }
 
 
 }
+
+
+
+
 
 
 
