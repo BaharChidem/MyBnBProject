@@ -66,3 +66,25 @@ CREATE TABLE Reservation (
     Comment TEXT
 );
 
+DROP TABLE IF EXISTS Category;
+CREATE TABLE Category (
+    Category_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Category_Name VARCHAR(255)
+);
+
+DROP TABLE IF EXISTS Amenities;
+CREATE TABLE Amenities (
+    Amenities_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Category_ID INT,
+    Amenity_Name VARCHAR(255)
+);
+
+DROP TABLE IF EXISTS AmenitiesListing;
+CREATE TABLE AmenitiesListing (
+    ALID INT AUTO_INCREMENT PRIMARY KEY,
+    LID INT,
+    Amenities_ID INT,
+);
+
+
+
