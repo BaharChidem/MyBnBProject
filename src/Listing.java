@@ -38,7 +38,7 @@ public class Listing {
     }
 
     public static int post_listings(Database data,int host_id,String type, double Longitude, double Latitude, String street, String City, String Postalcode, String Country) throws SQLException {
-        int AID = data.add_address(City.toLowerCase().trim(),Country.toLowerCase().trim(),Postalcode.toLowerCase().trim(),street.toLowerCase().trim());
+        int AID = data.add_address(City.trim(),Country.trim(),Postalcode.toUpperCase().trim(),street);
         Listing.verify_Listing(type,Longitude,Latitude,City,Country,Postalcode,street);
         int LID= data.add_listing(host_id,AID,type,Longitude,Latitude);
         return LID;

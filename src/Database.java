@@ -444,6 +444,7 @@ public class Database {
     }
 
 
+
     public ArrayList<Listing> Make_table(ResultSet rs) throws SQLException {
         ArrayList<Listing> new_list= new ArrayList<>();
         while (rs.next()) {
@@ -1029,6 +1030,62 @@ public class Database {
         }
         return price;
     }
+
+    public double listing_avg_price(String set, String type, String country, String city, int size) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("WITH Filter1 AS " +
+                "(SELECT LID FROM Listings NATURAL JOIN Address WHERE Type = ? AND City =? AND Country = ?), " +
+                "Filter2 AS (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ size +"), " +
+                "temp AS (SELECT AVG(Price) AS Price FROM Calendar " +
+                "WHERE LID IN (SELECT * FROM Filter1) AND LID IN (SELECT * FROM Filter2) " +
+                "GROUP BY LID) SELECT AVG(Price) AS RESULT FROM temp");
+        stmt.setString(1, type);
+        stmt.setString(2, country);
+        ResultSet rs = stmt.executeQuery();
+        double price = 0;
+        if (rs.next()){
+            price = rs.getDouble("RESULT");
+        }
+        return price;
+
+    }
+    public double listing_avg_price(String set, String type, String country,String city, String postalcode, int size) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("WITH Filter1 AS " +
+                "(SELECT LID FROM Listings NATURAL JOIN Address WHERE Type = ? AND City =? AND Country = ? AND Postal_code=?), " +
+                "Filter2 AS (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ size +"), " +
+                "temp AS (SELECT AVG(Price) AS Price FROM Calendar " +
+                "WHERE LID IN (SELECT * FROM Filter1) AND LID IN (SELECT * FROM Filter2) " +
+                "GROUP BY LID) SELECT AVG(Price) AS RESULT FROM temp");
+        stmt.setString(1, type);
+        stmt.setString(2, country);
+        ResultSet rs = stmt.executeQuery();
+        double price = 0;
+        if (rs.next()){
+            price = rs.getDouble("RESULT");
+        }
+        return price;
+
+    }
+
+//    public double avg_dist_from_attraction(double latitude, double longitude,double lat2, double lon2) throws SQLException {
+//        PreparedStatement stmt = connection.prepareStatement( "SELECT ST_Distance_Sphere(point("+lon2+","+lat2+"), point("+longitude+", "+latitude+")) as Distance ");
+//        ResultSet rs = stmt.executeQuery();
+//    }
+public double avg_dist_from_attraction(double latitude, double longitude,double lat2, double lon2) throws SQLException {
+    PreparedStatement stmt = connection.prepareStatement(
+            "SELECT AVG(ST_Distance_Sphere(point(?, ?), point(?, ?))) as AverageDistance "
+    );
+    stmt.setDouble(1, lon2);
+    stmt.setDouble(2, lat2);
+    stmt.setDouble(3, longitude);
+    stmt.setDouble(4, latitude);
+    ResultSet rs = stmt.executeQuery();
+    if (rs.next()) {
+        return rs.getDouble("AverageDistance");
+    }
+    return -1;
+}
+
+
 
 }
 

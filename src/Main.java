@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password = "Bhr_1232003";
+    private static final String Password ="Pilyar23$";
     public static User current_user=null;
     static Database data;
 
@@ -1110,11 +1110,62 @@ public class Main {
         ArrayList<Amenity> amenities = data.listing_amenities(lid);
         String set =  make_string(amenities);
         System.out.println(set);
-        double price = data.listing_avg_price(set, type, country, amenities.size());
+        double price=-1;
+        price = data.listing_avg_price(set,type, country, city , amenities.size());
         if(price > 0){
             System.out.println("Recommended price for such Listing: " + price);
+            helper_distance(lat,lon,city,price);
+            return;
+        }
+        price = data.listing_avg_price(set, type, country, amenities.size());
+        if(price > 0){
+            System.out.println("Recommended price for such Listing: " + price);
+            helper_distance(lat,lon,city,price);
+            return;
+        }
+        price= data.listing_avg_price(set,type,country,city, postalcode, amenities.size());
+        if(price > 0){
+            System.out.println("Recommended price for such Listing: " + price);
+            helper_distance(lat,lon,city,price);
+            return;
         }
 
+
+
+    }
+
+    public static void helper_distance(double lat, double lon, String city, double price) throws SQLException {
+        double latitude=0;
+        double longitude=0;
+        if(city.equals("Toronto")){ // Cn tower
+            latitude=43.6426;
+            longitude= -79.3871;
+        }
+        if(city.equals("New York")){// times square
+            latitude=40.7580;
+            longitude= -73.9855;
+        }
+        if(city.equals("Vancouver")){// Art Gallery
+            latitude=49.2827;
+            longitude= -123.1207;
+
+        }
+        if(city.equals("San Francisco")){ // Marina District
+            latitude=37.8028;
+            longitude=-122.4376;
+        }
+        double distance = data.avg_dist_from_attraction(latitude,longitude,lat,lon);
+        double km=distance/1000;
+        if(km<=5){
+            System.out.println("Your Listing is within 5 km to CN Tower");
+            System.out.println("Your new recommended price: "+price+80);
+
+        }
+        else if(km>5 && km<=15){
+            System.out.println("Your Listing is within (5-15 km) to CN Tower");
+            System.out.println("Your new recommended price: "+price+50);
+
+        }
     }
 
     public static String make_string(ArrayList<Amenity> amenities){
