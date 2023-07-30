@@ -86,5 +86,13 @@ CREATE TABLE AmenitiesListing (
     Amenities_ID INT
 );
 
+DROP TABLE IF EXISTS Revenue;
+CREATE TABLE Revenue (
+    Revenue_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Amenity_Name VARCHAR(255),
+    Percentage DOUBLE
+);
+
+
 
 

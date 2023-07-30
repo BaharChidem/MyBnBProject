@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password ="Pilyar23$";
+    private static final String Password ="Bhr_1232003";
     public static User current_user=null;
     static Database data;
 
@@ -248,32 +248,72 @@ public class Main {
 
     public static void recommend_amenities( int Lid,String type , String city, String country) throws SQLException {
         ArrayList<Amenity> amenities = data.listing_amenities(Lid);
+        ArrayList<Amenity> unpopular = new ArrayList<>();
         String set =  make_string(amenities);
         ArrayList<Amenity> suggested_amenities = new ArrayList<>();
-        System.out.println("1: Essentials");
+        System.out.println("--------------------------");
+        System.out.println("1: Essentials:");
         suggested_amenities=data.offer_essentials(set,city,country,type,"Essentials");
-        double rev_increase =2.5;
-        for ( int i=0; i<suggested_amenities.size(); i++){
-
-            System.out.println(suggested_amenities.get(i).Amenity_Name()+"(Revenue Increase by : "+rev_increase+" % per night )");
+        String essentials = make_string(suggested_amenities);
+        System.out.println(essentials);
+        unpopular = data.offer_unpopular(set, essentials, "Essentials");
+        double rev_increase = 5.0;
+        System.out.println("Trending Essentials:");
+        for (int i=0; i<suggested_amenities.size(); i++){
+            double percentage = data.find_revenue(suggested_amenities.get(i).Amenity_Name());
+            double result = rev_increase + percentage;
+            System.out.println(suggested_amenities.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
             rev_increase= rev_increase-0.5;
         }
-        System.out.println("2:Safety");
-        rev_increase=2.5;
+        rev_increase = 3.0;
+        System.out.println();
+        System.out.println("Non-Trending Essentials:");
+        for(int i=0; i< unpopular.size(); i++){
+            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
+            double result = rev_increase + percentage;
+            System.out.println(unpopular.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
+        }
+        System.out.println("--------------------------");
+        System.out.println("2: Safety:");
+        rev_increase= 3.0;
         suggested_amenities=data.offer_essentials(set,city,country,type,"Safety");
+        String safety = make_string(suggested_amenities);
+        unpopular = data.offer_unpopular(set, safety, "Safety");
+        System.out.println("Important Safety Amenities:");
         for ( int i=0; i<suggested_amenities.size(); i++){
-
-            System.out.println(suggested_amenities.get(i).Amenity_Name()+"(Revenue Increase by : "+rev_increase+" % per night )");
+            double percentage = data.find_revenue(suggested_amenities.get(i).Amenity_Name());
+            double result = rev_increase + percentage;
+            System.out.println(suggested_amenities.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
             rev_increase= rev_increase-0.5;
         }
-
-        System.out.println("3:Standout");
-        rev_increase=2.5;
+        rev_increase = 4.0;
+        System.out.println();
+        System.out.println("Other Safety Amenities:");
+        for(int i=0; i< unpopular.size(); i++){
+            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
+            double result = rev_increase + percentage;
+            System.out.println(unpopular.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
+        }
+        System.out.println("--------------------------");
+        System.out.println("3: Standout:");
+        rev_increase=5.0;
         suggested_amenities=data.offer_essentials(set,city,country,type,"Standout");
+        String standout = make_string(suggested_amenities);
+        unpopular = data.offer_unpopular(set, standout, "Standout");
+        System.out.println("Trending Standouts:");
         for ( int i=0; i<suggested_amenities.size(); i++){
-
-            System.out.println(suggested_amenities.get(i).Amenity_Name()+"(Revenue Increase by : "+rev_increase+" % per night )");
+            double percentage = data.find_revenue(suggested_amenities.get(i).Amenity_Name());
+            double result = rev_increase + percentage;
+            System.out.println(suggested_amenities.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
             rev_increase= rev_increase-0.5;
+        }
+        rev_increase = 0.1;
+        System.out.println();
+        System.out.println("Cool Standouts:");
+        for(int i=0; i< unpopular.size(); i++){
+            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
+            double result = rev_increase + percentage;
+            System.out.println(unpopular.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
         }
     }
 

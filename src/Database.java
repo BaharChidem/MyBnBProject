@@ -1091,7 +1091,7 @@ public double avg_dist_from_attraction(double latitude, double longitude,double 
 public ArrayList<Amenity> offer_essentials(String user_amenities, String City, String Country, String type, String Category) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement("SELECT Amenities.*, COUNT(*)/" +
                 "(SELECT COUNT(*) FROM LISTINGS NATURAL JOIN ADDRESS WHERE Type =? AND City =? AND Country=?) as Prop FROM AmenitiesListing " +
-                "NATURAL JOIN Amenities NATURAL JOIN Category WHERE Category_Name =? " +
+                "NATURAL JOIN Amenities NATURAL JOIN Category WHERE Category_Name=? " +
                 "AND Amenity_Name NOT IN " + user_amenities +
                 " GROUP BY Amenity_Name,Category_ID,Amenities_ID ORDER BY Prop DESC LIMIT 10");
         stmt.setString(1,type);
@@ -1108,10 +1108,32 @@ public ArrayList<Amenity> offer_essentials(String user_amenities, String City, S
 
         }
         return recommendations;
+    }
 
+    public ArrayList<Amenity> offer_unpopular(String set, String popular_amenities, String category) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT Amenities.* FROM Amenities NATURAL JOIN Category WHERE Category_Name=? AND Amenity_Name NOT IN "+popular_amenities+" AND Amenity_Name NOT IN "+set+" GROUP BY Amenity_Name, Category_ID, Amenities_ID");
+        stmt.setString(1,category);
+        ResultSet rs = stmt.executeQuery();
+        ArrayList<Amenity> unpopular_amenities = new ArrayList<>();
+        while (rs.next()){
+            int cid = rs.getInt("Category_ID");
+            String amenity_name = rs.getString("Amenity_Name");
+            int Amenities_id = rs.getInt("Amenities_ID");
+            unpopular_amenities.add(new Amenity(Amenities_id,amenity_name,cid));
+        }
+        return unpopular_amenities;
+    }
 
-
-}
+    public double find_revenue(String name) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT Percentage FROM Revenue WHERE Amenity_Name =?");
+        stmt.setString(1,name);
+        ResultSet rs = stmt.executeQuery();
+        double percentage = 0.0;
+        if(rs.next()){
+           percentage = rs.getDouble("Percentage");
+        }
+        return percentage;
+    }
 
 
 
