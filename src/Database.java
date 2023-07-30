@@ -808,7 +808,7 @@ public class Database {
     }
 
     public void report_case8() throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("SELECT COUNT(*) AS TotalListings, City, Country, Name FROM Listings L JOIN Address A ON L.AID=A.AID JOIN Users U ON U.UID = L.UID WHERE L.Status ='[ACTIVE]' GROUP BY City, Country, Name HAVING TotalListings > 0.1 * (SELECT COUNT(*) FROM Listings L2 JOIN Address A2 ON A2.AID=L2.AID WHERE L2.Status = '[AVAILABLE]' AND A2.Country = A.Country AND A.City = A2.City) ORDER BY A.City,A.Country");
+        PreparedStatement stmt = connection.prepareStatement("SELECT COUNT(*) AS TotalListings, City, Country, Name FROM Listings L JOIN Address A ON L.AID=A.AID JOIN Users U ON U.UID = L.UID WHERE L.Status ='[ACTIVE]' GROUP BY City, Country, Name HAVING TotalListings > 0.1 * (SELECT COUNT(*) FROM Listings L2 JOIN Address A2 ON A2.AID=L2.AID WHERE L2.Status = '[ACTIVE]' AND A2.Country = A.Country AND A.City = A2.City) ORDER BY A.City,A.Country");
         ResultSet rs = stmt.executeQuery();
         System.out.println("----------------------------");
         while (rs.next()){
@@ -966,6 +966,69 @@ public class Database {
         return result;
     }
 
+    //-------------------------------------------------------- AMENITIES & HOST TOOL KIT  ----------------------------------------------------
+
+    public ArrayList<String> find_amenities(int category) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Category NATURAL JOIN Amenities where Category_ID =?");
+        stmt.setInt(1, category);
+        ResultSet rs = stmt.executeQuery();
+        ArrayList<String> amenities = new ArrayList<>();
+        while(rs.next()){
+            String amenity = rs.getString("Amenity_Name");
+            amenities.add(amenity);
+        }
+        return  amenities;
+    }
+
+    public int find_amenityID(int cat, String amenity) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Category NATURAL JOIN Amenities where Category_ID =? AND Amenity_Name =?");
+        stmt.setInt(1, cat);
+        stmt.setString(2,amenity);
+        ResultSet rs = stmt.executeQuery();
+        int amenityID = 0;
+        while(rs.next()){
+            amenityID = rs.getInt("Amenities_ID");
+        }
+        return  amenityID;
+    }
+    public void add_amenity(int lid, int amenityID) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("INSERT INTO AmenitiesListing (LID, Amenities_ID) VALUES (?, ?)");
+        stmt.setInt(1, lid);
+        stmt.setInt(2, amenityID);
+        stmt.executeUpdate();
+    }
+
+    public ArrayList<Amenity> listing_amenities(int lid) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT Category_ID, Amenity_Name, Amenities_ID FROM Amenities NATURAL JOIN AmenitiesListing WHERE LID = ?");
+        stmt.setInt(1, lid);
+        ResultSet rs = stmt.executeQuery();
+        ArrayList<Amenity> amenities = new ArrayList<>();
+        while(rs.next()){
+            int amenity_id = rs.getInt("Amenities_ID");
+            int cat = rs.getInt("Category_ID");
+            String name = rs.getString("Amenity_Name");
+            amenities.add(new Amenity(amenity_id, name, cat));
+        }
+        return amenities;
+    }
+
+    public double listing_avg_price(String set, String type, String country, int size) throws SQLException {
+        //PreparedStatement stmt = connection.prepareStatement("WITH F1 AS (SELECT LID FROM Listings NATURAL JOIN Address WHERE Type =? AND Country =?), F2 AS (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ size +"), TEMP AS (SELECT AVG(Price) FROM Calendar WHERE LID IN (SELECT * FROM F1) AND LID IN (SELECT * FROM F2) GROUP BY LID) SELECT AVG(Price) AS RESULT FROM TEMP");
+        PreparedStatement stmt = connection.prepareStatement("WITH Filter1 AS " +
+                "(SELECT LID FROM Listings NATURAL JOIN Address WHERE Type = ? AND Country = ?), " +
+                "Filter2 AS (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ size +"), " +
+                "temp AS (SELECT AVG(Price) AS Price FROM Calendar " +
+                "WHERE LID IN (SELECT * FROM Filter1) AND LID IN (SELECT * FROM Filter2) " +
+                "GROUP BY LID) SELECT AVG(Price) AS RESULT FROM temp");
+        stmt.setString(1, type);
+        stmt.setString(2, country);
+        ResultSet rs = stmt.executeQuery();
+        double price = 0;
+        if (rs.next()){
+            price = rs.getDouble("RESULT");
+        }
+        return price;
+    }
 
 }
 

@@ -209,11 +209,6 @@ public class Main {
             System.out.println("Not a Valid type");
             return;
         }
-//        System.out.println("Enter the type of place");
-//        System.out.println("1:Entire place");
-//        System.out.println("2:Room");
-//        System.out.println("3:Shared Room");
-//        int num1 = scanner.nextInt();
         System.out.println("Enter the Latitude of the Listing (-90 to 90)");
         double lat= scanner.nextDouble();
         System.out.println("Enter the Longitude of the Listing (-180 to 180)");
@@ -231,10 +226,78 @@ public class Main {
         System.out.print("Postal Code: ");
         String postalcode = scanner.next();
 
-        Listing.post_listings(data,current_user.uid(),type,lon,lat,street,city,postalcode,country);
+        int lid = Listing.post_listings(data,current_user.uid(),type,lon,lat,street,city,postalcode,country);
+
+        System.out.println("Add Amenities:");
+        add_amenities(lid);
+
+        System.out.println("Would you like to use HostToolKit to recommend price 1:YES or 2:NO");
+        int num = scanner.nextInt();
+        if(num == 1){
+            recommend_price(lid, type, city, country, postalcode, lat,lon);
+        }
 
     }
 
+    public static void add_amenities(int lid) throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<String> amenities = new ArrayList<>();
+        boolean typeOfPlaceSelected = false;
+
+        while(true) {
+            System.out.println(typeOfPlaceSelected ? "1: Type of Place (already selected)" : "1: Type of Place (Must be entered in order to quit)");
+            System.out.println("2: Essentials");
+            System.out.println("3: Standout");
+            System.out.println("4: Safety");
+            System.out.println("5: Exit");
+            int num = scanner.nextInt();
+            scanner.nextLine();
+
+            if (num == 5 && !typeOfPlaceSelected) {
+                System.out.println("You must select the 'Type of Place' before exiting.");
+                continue; // Continue to next iteration, forcing user to make a selection
+            }
+
+            if (num == 5 && typeOfPlaceSelected) {
+                break; // Exit if "Type of Place" has been selected
+            }
+
+            if (num == 1 && !typeOfPlaceSelected) {
+                amenities = data.find_amenities(1);
+                for (int i = 0; i < amenities.size(); i++) {
+                    System.out.println(i + 1 + " : " + amenities.get(i));
+                }
+                String ans = scanner.nextLine();
+                if (amenities.contains(ans)) {
+                    amenities.remove(ans);
+                    int id = data.find_amenityID(num, ans);
+                    data.add_amenity(lid, id);
+                }
+                typeOfPlaceSelected = true;
+            }
+
+            if (num >= 2 && num <= 4) {
+                amenities = data.find_amenities(num);
+                while (true) {
+                    System.out.println("Amenities under this category: (Quit - 0)");
+                    for (int i = 0; i < amenities.size(); i++) {
+                        System.out.println(i + 1 + " : " + amenities.get(i));
+                    }
+                    String ans = scanner.nextLine();
+                    if (ans.equals("0")) {
+                        break;
+                    }
+                    if (amenities.contains(ans)) {
+                        amenities.remove(ans);
+                        int id = data.find_amenityID(num, ans);
+                        data.add_amenity(lid, id);
+                    }
+                }
+            }
+        }
+
+
+    }
 
     public static void handle_listings_host() throws SQLException {
         Scanner scanner = new Scanner(System.in);
@@ -767,10 +830,10 @@ public class Main {
             LID=List.get(num).LID();
         }
         scanner.nextLine();
-        System.out.println("Enter the Start date (YYYY-MM-DD):");
+        System.out.println("Enter the Start date of your Reservation (YYYY-MM-DD):");
         String start = scanner.nextLine();
 
-        System.out.println("Enter the End date (YYYY-MM-DD):");
+        System.out.println("Enter the End date of your Reservation (YYYY-MM-DD):");
         String end = scanner.nextLine();
 
         LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
@@ -1043,6 +1106,30 @@ public class Main {
             NounPhrases(child, noun_phrases);
     }
 
+    public static void recommend_price(int lid, String type, String city, String country, String postalcode, double lat, double lon) throws SQLException {
+        ArrayList<Amenity> amenities = data.listing_amenities(lid);
+        String set =  make_string(amenities);
+        System.out.println(set);
+        double price = data.listing_avg_price(set, type, country, amenities.size());
+        if(price > 0){
+            System.out.println("Recommended price for such Listing: " + price);
+        }
+
+    }
+
+    public static String make_string(ArrayList<Amenity> amenities){
+        StringBuilder set = new StringBuilder();
+        set.append("(");
+        for (int i=0; i<amenities.size(); i++) {
+            if (i==0) {
+                set.append("'" + amenities.get(i).Amenity_Name() + "'");
+            } else {
+                set.append("," + "'" + amenities.get(i).Amenity_Name() + "'");
+            }
+        }
+        set.append(")");
+        return set.toString();
+    }
 
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
