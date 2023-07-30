@@ -1040,6 +1040,7 @@ public class Database {
                 "GROUP BY LID) SELECT AVG(Price) AS RESULT FROM temp");
         stmt.setString(1, type);
         stmt.setString(2, country);
+        stmt.setString(3, city);
         ResultSet rs = stmt.executeQuery();
         double price = 0;
         if (rs.next()){
@@ -1057,6 +1058,8 @@ public class Database {
                 "GROUP BY LID) SELECT AVG(Price) AS RESULT FROM temp");
         stmt.setString(1, type);
         stmt.setString(2, country);
+        stmt.setString(3,city);
+        stmt.setString(4, postalcode);
         ResultSet rs = stmt.executeQuery();
         double price = 0;
         if (rs.next()){

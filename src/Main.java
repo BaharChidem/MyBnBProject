@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password ="Pilyar23$";
+    private static final String Password ="Bhr_1232003";
     public static User current_user=null;
     static Database data;
 
@@ -1158,12 +1158,12 @@ public class Main {
         double km=distance/1000;
         if(km<=5){
             System.out.println("Your Listing is within 5 km to CN Tower");
-            System.out.println("Your new recommended price: "+price+80);
+            System.out.println("Your new recommended price: "+ (price+80.00));
 
         }
         else if(km>5 && km<=15){
             System.out.println("Your Listing is within (5-15 km) to CN Tower");
-            System.out.println("Your new recommended price: "+price+50);
+            System.out.println("Your new recommended price: "+ (price+50.00));
 
         }
     }
