@@ -1088,6 +1088,32 @@ public double avg_dist_from_attraction(double latitude, double longitude,double 
     return -1;
 }
 
+public ArrayList<Amenity> offer_essentials(String user_amenities, String City, String Country, String type, String Category) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT Amenities.*, COUNT(*)/" +
+                "(SELECT COUNT(*) FROM LISTINGS NATURAL JOIN ADDRESS WHERE Type =? AND City =? AND Country=?) as Prop FROM AmenitiesListing " +
+                "NATURAL JOIN Amenities NATURAL JOIN Category WHERE Category_Name =? " +
+                "AND Amenity_Name NOT IN " + user_amenities +
+                " GROUP BY Amenity_Name,Category_ID,Amenities_ID ORDER BY Prop DESC LIMIT 10");
+        stmt.setString(1,type);
+        stmt.setString(2,City);
+        stmt.setString(3,Country);
+        stmt.setString(4,Category);
+        ResultSet rs = stmt.executeQuery();
+        ArrayList<Amenity> recommendations = new ArrayList<>();
+        while(rs.next()){
+            int cid = rs.getInt("Category_ID");
+            String amenity_name = rs.getString("Amenity_Name");
+            int Amenities_id = rs.getInt("Amenities_ID");
+            recommendations.add(new Amenity(Amenities_id,amenity_name,cid));
+
+        }
+        return recommendations;
+
+
+
+}
+
+
 
 
 }

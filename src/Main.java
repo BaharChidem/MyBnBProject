@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password ="Bhr_1232003";
+    private static final String Password ="Pilyar23$";
     public static User current_user=null;
     static Database data;
 
@@ -230,14 +230,53 @@ public class Main {
 
         System.out.println("Add Amenities:");
         add_amenities(lid);
+        scanner.nextLine();
 
         System.out.println("Would you like to use HostToolKit to recommend price 1:YES or 2:NO");
         int num = scanner.nextInt();
         if(num == 1){
             recommend_price(lid, type, city, country, postalcode, lat,lon);
         }
+        System.out.println("Would you like to use HostToolKit to recommend Amenities 1:YES or 2:NO");
+        int num2 = scanner.nextInt();
+        if(num2==1){
+            recommend_amenities(lid,type,city ,country);
+
+        }
 
     }
+
+    public static void recommend_amenities( int Lid,String type , String city, String country) throws SQLException {
+        ArrayList<Amenity> amenities = data.listing_amenities(Lid);
+        String set =  make_string(amenities);
+        ArrayList<Amenity> suggested_amenities = new ArrayList<>();
+        System.out.println("1: Essentials");
+        suggested_amenities=data.offer_essentials(set,city,country,type,"Essentials");
+        double rev_increase =2.5;
+        for ( int i=0; i<suggested_amenities.size(); i++){
+
+            System.out.println(suggested_amenities.get(i).Amenity_Name()+"(Revenue Increase by : "+rev_increase+" % per night )");
+            rev_increase= rev_increase-0.5;
+        }
+        System.out.println("2:Safety");
+        rev_increase=2.5;
+        suggested_amenities=data.offer_essentials(set,city,country,type,"Safety");
+        for ( int i=0; i<suggested_amenities.size(); i++){
+
+            System.out.println(suggested_amenities.get(i).Amenity_Name()+"(Revenue Increase by : "+rev_increase+" % per night )");
+            rev_increase= rev_increase-0.5;
+        }
+
+        System.out.println("3:Standout");
+        rev_increase=2.5;
+        suggested_amenities=data.offer_essentials(set,city,country,type,"Standout");
+        for ( int i=0; i<suggested_amenities.size(); i++){
+
+            System.out.println(suggested_amenities.get(i).Amenity_Name()+"(Revenue Increase by : "+rev_increase+" % per night )");
+            rev_increase= rev_increase-0.5;
+        }
+    }
+
 
     public static void add_amenities(int lid) throws SQLException {
         Scanner scanner = new Scanner(System.in);
@@ -1109,23 +1148,22 @@ public class Main {
     public static void recommend_price(int lid, String type, String city, String country, String postalcode, double lat, double lon) throws SQLException {
         ArrayList<Amenity> amenities = data.listing_amenities(lid);
         String set =  make_string(amenities);
-        System.out.println(set);
         double price=-1;
         price = data.listing_avg_price(set,type, country, city , amenities.size());
         if(price > 0){
-            System.out.println("Recommended price for such Listing: " + price);
+            System.out.println("Recommended price for such Listing per night: " + price);
             helper_distance(lat,lon,city,price);
             return;
         }
         price = data.listing_avg_price(set, type, country, amenities.size());
         if(price > 0){
-            System.out.println("Recommended price for such Listing: " + price);
+            System.out.println("Recommended price for such Listing per night: " + price);
             helper_distance(lat,lon,city,price);
             return;
         }
         price= data.listing_avg_price(set,type,country,city, postalcode, amenities.size());
         if(price > 0){
-            System.out.println("Recommended price for such Listing: " + price);
+            System.out.println("Recommended price for such Listing per night: " + price);
             helper_distance(lat,lon,city,price);
             return;
         }
@@ -1137,34 +1175,42 @@ public class Main {
     public static void helper_distance(double lat, double lon, String city, double price) throws SQLException {
         double latitude=0;
         double longitude=0;
+        String attraction ="";
         if(city.equals("Toronto")){ // Cn tower
             latitude=43.6426;
             longitude= -79.3871;
+            attraction="CN Tower";
         }
-        if(city.equals("New York")){// times square
+        if(city.equals("New York")){// Times square
             latitude=40.7580;
             longitude= -73.9855;
+            attraction="Times Square";
         }
         if(city.equals("Vancouver")){// Art Gallery
             latitude=49.2827;
             longitude= -123.1207;
+            attraction="Vancouver Art Gallery";
 
         }
         if(city.equals("San Francisco")){ // Marina District
             latitude=37.8028;
             longitude=-122.4376;
+            attraction="Marina District";
         }
         double distance = data.avg_dist_from_attraction(latitude,longitude,lat,lon);
         double km=distance/1000;
         if(km<=5){
-            System.out.println("Your Listing is within 5 km to CN Tower");
-            System.out.println("Your new recommended price: "+ (price+80.00));
+            System.out.println("Your Listing is within 5 km to "+ attraction);
+            System.out.println("Your new recommended price per night: "+ (price+80.00));
 
         }
         else if(km>5 && km<=15){
-            System.out.println("Your Listing is within (5-15 km) to CN Tower");
-            System.out.println("Your new recommended price: "+ (price+50.00));
+            System.out.println("Your Listing is within (5-15 km) to "+ attraction);
+            System.out.println("Your new recommended price per night: "+ (price+50.00));
 
+        }
+        else{
+            System.out.println("We are unable to find a landmark close to your listing at the moment. We are updating the database steadily to improve this feature");
         }
     }
 
@@ -1181,6 +1227,8 @@ public class Main {
         set.append(")");
         return set.toString();
     }
+
+
 
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
