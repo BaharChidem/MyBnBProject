@@ -27,6 +27,7 @@ CREATE TABLE Guests (
     payment_info VARCHAR(255),
     PRIMARY KEY(UID)
 );
+
 DROP TABLE IF EXISTS Hosts;
 CREATE TABLE Hosts (
     UID INT AUTO_INCREMENT,
