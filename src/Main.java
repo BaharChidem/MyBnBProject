@@ -19,11 +19,11 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password ="Bhr_1232003";
-    public static User current_user=null;
+    private static final String Password = "Pilyar23$";
+    public static User current_user = null;
     static Database data;
 
-    public static void displayMenu(){
+    public static void displayMenu() {
         System.out.println("Enter the number next to the operation you would like to do");
         System.out.println("1: Log In");
         System.out.println("2: Sign Up");
@@ -31,7 +31,7 @@ public class Main {
         System.out.println("4: Exit");
     }
 
-    public static void displayGuestMenu(){
+    public static void displayGuestMenu() {
         System.out.println("Enter the number next to the operation you would like to do");
         System.out.println("1: View Listings"); // make a reservation after search
         System.out.println("2: My Reservations"); // view info and cancel a reservation within upcoming reservations
@@ -40,7 +40,7 @@ public class Main {
         System.out.println("5: Log Out");
     }
 
-    public static void displayHostMenu(){
+    public static void displayHostMenu() {
         System.out.println("Enter the number next to the operation you would like to do");
         System.out.println("1: Create a Listing");
         System.out.println("2: My Listings"); // see the listing and update it
@@ -65,17 +65,17 @@ public class Main {
         // Check if the user already exists in your system
         User user = data.get_user(email.toLowerCase().trim());
         if (user != null) {
-                if (user.Account().equals("[INACTIVE]")) {
-                    // check if the password matches
-                    if (!user.Password().equals(password)) {
-                        System.out.println("Wrong password - Unable to proceed with reactivation");
-                        return;
-                    }
-                    // Reactivate the account if it's inactive
-                    data.activate_account(user.uid());
-                    System.out.println("Your account has been reactivated!");
+            if (user.Account().equals("[INACTIVE]")) {
+                // check if the password matches
+                if (!user.Password().equals(password)) {
+                    System.out.println("Wrong password - Unable to proceed with reactivation");
                     return;
                 }
+                // Reactivate the account if it's inactive
+                data.activate_account(user.uid());
+                System.out.println("Your account has been reactivated!");
+                return;
+            }
         }
 
         scanner.nextLine();
@@ -109,22 +109,22 @@ public class Main {
             String payment_info = scanner.next();
             if (user != null) {
                 Guest guest = data.get_guest(user);
-                if(guest == null) {
+                if (guest == null) {
                     data.add_guest(user.uid(), payment_info);
                     System.out.println("Your account is successfully registered as Guest");
                 }
             } else {
-                Guest.Signup(SIN, name,DoB,occupation,email,password,city,country,postalcode,street, payment_info, data);
+                Guest.Signup(SIN, name, DoB, occupation, email, password, city, country, postalcode, street, payment_info, data);
             }
         } else if (num == 2) {
             if (user != null) {
                 Host host = data.get_host(user);
-                if(host == null) {
+                if (host == null) {
                     data.add_host(user.uid());
                     System.out.println("Your account is successfully registered as Host");
                 }
             } else {
-                Host.Signup(SIN, name,DoB,occupation,email,password,city,country,postalcode,street, data);
+                Host.Signup(SIN, name, DoB, occupation, email, password, city, country, postalcode, street, data);
             }
         }
     }
@@ -142,54 +142,54 @@ public class Main {
 
         System.out.print("Password: ");
         String password = scanner.next();
-        if ( num == 1){
+        if (num == 1) {
 
-            current_user=Guest.login(email,password,data);
+            current_user = Guest.login(email, password, data);
 
         }
-        if( num==2){
-            current_user=Host.login(email,password,data);
+        if (num == 2) {
+            current_user = Host.login(email, password, data);
         }
 
     }
 
-    public static void Host_options(int num,User user) throws SQLException {
-        if(num==1){
+    public static void Host_options(int num, User user) throws SQLException {
+        if (num == 1) {
             create_listings();
         }
-        if (num==2){
+        if (num == 2) {
             handle_listings_host();
         }
-        if (num==3){
+        if (num == 3) {
             handle_reservations();
 
         }
-        if (num==4){
+        if (num == 4) {
             review_guest();
         }
-        if(num==5) {
+        if (num == 5) {
             data.deactivate_host(user.uid());
         }
-        if(num==6) {
+        if (num == 6) {
             //logout
         }
 
     }
 
-    public static void Guest_options(int num,User user) throws SQLException {
-        if(num==1){
+    public static void Guest_options(int num, User user) throws SQLException {
+        if (num == 1) {
             view_listings();
         }
-        if(num == 2){
+        if (num == 2) {
             handle_reservations();
         }
-        if(num == 3){
+        if (num == 3) {
             review_reservations();
         }
-        if(num==4) {
+        if (num == 4) {
             data.deactivate_guest(user.uid());
         }
-        if(num==5) {
+        if (num == 5) {
             //logout
         }
 
@@ -210,9 +210,9 @@ public class Main {
             return;
         }
         System.out.println("Enter the Latitude of the Listing (-90 to 90)");
-        double lat= scanner.nextDouble();
+        double lat = scanner.nextDouble();
         System.out.println("Enter the Longitude of the Listing (-180 to 180)");
-        double lon= scanner.nextDouble();
+        double lon = scanner.nextDouble();
         scanner.nextLine();
         System.out.print("Street: ");
         String street = scanner.nextLine();
@@ -226,7 +226,7 @@ public class Main {
         System.out.print("Postal Code: ");
         String postalcode = scanner.next();
 
-        int lid = Listing.post_listings(data,current_user.uid(),type,lon,lat,street,city,postalcode,country);
+        int lid = Listing.post_listings(data, current_user.uid(), type, lon, lat, street, city, postalcode, country);
 
         System.out.println("Add Amenities:");
         add_amenities(lid);
@@ -234,19 +234,19 @@ public class Main {
 
         System.out.println("Would you like to use HostToolKit to recommend price 1:YES or 2:NO");
         int num = scanner.nextInt();
-        if(num == 1){
-            recommend_price(lid, type, city, country, postalcode, lat,lon, true);
+        if (num == 1) {
+            recommend_price(lid, type, city, country, postalcode, lat, lon, true);
         }
         System.out.println("Would you like to use HostToolKit to recommend Amenities 1:YES or 2:NO");
         int num2 = scanner.nextInt();
-        if(num2==1){
-            HashMap<String,Double> revenue=recommend_amenities(lid,type,city ,country);
+        if (num2 == 1) {
+            HashMap<String, Double> revenue = recommend_amenities(lid, type, city, country);
             System.out.println(" Do you want to select the amenities to display your anticipated revenue (1:Yes|2:No)");
-            int num3= scanner.nextInt();
-            if(num3==1){
-                double price = recommend_price(lid, type, city, country, postalcode, lat,lon, false);
+            int num3 = scanner.nextInt();
+            if (num3 == 1) {
+                double price = recommend_price(lid, type, city, country, postalcode, lat, lon, false);
                 int num_reservations = data.find_num_reservations(type, country, city);
-                calculate_revenue(revenue,price, num_reservations);
+                calculate_revenue(revenue, price, num_reservations);
             }
 
 
@@ -255,82 +255,82 @@ public class Main {
 
     }
 
-    public static HashMap<String,Double> recommend_amenities( int Lid,String type , String city, String country) throws SQLException {
+    public static HashMap<String, Double> recommend_amenities(int Lid, String type, String city, String country) throws SQLException {
         ArrayList<Amenity> amenities = data.listing_amenities(Lid);
 
         ArrayList<Amenity> unpopular = new ArrayList<>();
-        String set =  make_string(amenities);
+        String set = make_string(amenities);
         ArrayList<Amenity> suggested_amenities = new ArrayList<>();
         HashMap<String, Double> revenueIncreaseMap = new HashMap<>();
         System.out.println("--------------------------");
         System.out.println("1: Essentials:");
-        suggested_amenities=data.offer_essentials(set,city,country,type,"Essentials");
+        suggested_amenities = data.offer_essentials(set, city, country, type, "Essentials");
         String essentials = make_string(suggested_amenities);
         System.out.println(essentials);
         unpopular = data.offer_unpopular(set, essentials, "Essentials");
         double rev_increase = 5.0;
         System.out.println("Trending Essentials:");
-        for (int i=0; i<suggested_amenities.size(); i++){
+        for (int i = 0; i < suggested_amenities.size(); i++) {
             double percentage = data.find_revenue(suggested_amenities.get(i).Amenity_Name());
             double result = rev_increase + percentage;
-            revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(),result);
-            System.out.println(suggested_amenities.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
-            rev_increase= rev_increase-0.5;
+            revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(), result);
+            System.out.println(suggested_amenities.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
+            rev_increase = rev_increase - 0.5;
         }
         rev_increase = 3.0;
         System.out.println();
         System.out.println("Non-Trending Essentials:");
-        for(int i=0; i< unpopular.size(); i++){
+        for (int i = 0; i < unpopular.size(); i++) {
             double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
             double result = rev_increase + percentage;
-            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(),result);
-            System.out.println(unpopular.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
+            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
+            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
         }
         System.out.println("--------------------------");
         System.out.println("2: Safety:");
-        rev_increase= 3.0;
-        suggested_amenities=data.offer_essentials(set,city,country,type,"Safety");
+        rev_increase = 3.0;
+        suggested_amenities = data.offer_essentials(set, city, country, type, "Safety");
         String safety = make_string(suggested_amenities);
         unpopular = data.offer_unpopular(set, safety, "Safety");
         System.out.println("Important Safety Amenities:");
-        for ( int i=0; i<suggested_amenities.size(); i++){
+        for (int i = 0; i < suggested_amenities.size(); i++) {
             double percentage = data.find_revenue(suggested_amenities.get(i).Amenity_Name());
             double result = rev_increase + percentage;
-            revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(),result);
-            System.out.println(suggested_amenities.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
-            rev_increase= rev_increase-0.5;
+            revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(), result);
+            System.out.println(suggested_amenities.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
+            rev_increase = rev_increase - 0.5;
         }
         rev_increase = 4.0;
         System.out.println();
         System.out.println("Other Safety Amenities:");
-        for(int i=0; i< unpopular.size(); i++){
+        for (int i = 0; i < unpopular.size(); i++) {
             double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
             double result = rev_increase + percentage;
-            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(),result);
-            System.out.println(unpopular.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
+            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
+            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
         }
         System.out.println("--------------------------");
         System.out.println("3: Standout:");
-        rev_increase=5.0;
-        suggested_amenities=data.offer_essentials(set,city,country,type,"Standout");
+        rev_increase = 5.0;
+        suggested_amenities = data.offer_essentials(set, city, country, type, "Standout");
         String standout = make_string(suggested_amenities);
         unpopular = data.offer_unpopular(set, standout, "Standout");
         System.out.println("Trending Standouts:");
-        for ( int i=0; i<suggested_amenities.size(); i++){
+        for (int i = 0; i < suggested_amenities.size(); i++) {
             double percentage = data.find_revenue(suggested_amenities.get(i).Amenity_Name());
             double result = rev_increase + percentage;
-            revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(),result);
-            System.out.println(suggested_amenities.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
-            rev_increase= rev_increase-0.5;
+            revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(), result);
+            System.out.println(suggested_amenities.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
+            rev_increase = rev_increase - 0.5;
         }
         rev_increase = 0.1;
         System.out.println();
         System.out.println("Cool Standouts:");
-        for(int i=0; i< unpopular.size(); i++){
+        for (int i = 0; i < unpopular.size(); i++) {
             double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
             double result = rev_increase + percentage;
-            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(),result);
-            System.out.println(unpopular.get(i).Amenity_Name()+": (Revenue Increase by : "+ percentage + " + "+ rev_increase+ " = " + result +" % per night)");
+            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
+            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
         }
 
 
@@ -358,20 +358,18 @@ public class Main {
         }
         double finalPrice = price + (price * totalPriceIncrease / 100);
         System.out.println("*********************************************************************************************");
-        System.out.println("The base price before considering all chosen amenities is: " +price);
+        System.out.println("The base price before considering all chosen amenities is: " + price);
         System.out.println("The final price, considering all chosen amenities, is: " + finalPrice);
-        System.out.println("The percentage increase in your revenue  : "+totalPriceIncrease+" %");
-        System.out.println("The Revenue increase in Dollars  :  $ "+(finalPrice-price));
-        if(num == 0){
+        System.out.println("The percentage increase in your revenue  : " + totalPriceIncrease + " %");
+        System.out.println("The Revenue increase in Dollars  :  $ " + (finalPrice - price));
+        if (num == 0) {
             System.out.println("There is no enough data to calculate expected revenue based on reservation");
-        }
-        else{
+        } else {
             System.out.println("The average number of Reservation for such Listing is : " + num);
             System.out.println("The expected revenue for the Listing based on the Reservation data : " + (finalPrice * num));
         }
+        System.out.println("*********************************************************************************************");
     }
-
-
 
 
     public static void add_amenities(int lid) throws SQLException {
@@ -379,7 +377,7 @@ public class Main {
         ArrayList<String> amenities = new ArrayList<>();
         boolean typeOfPlaceSelected = false;
 
-        while(true) {
+        while (true) {
             System.out.println(typeOfPlaceSelected ? "1: Type of Place (already selected)" : "1: Type of Place (Must be entered in order to quit)");
             System.out.println("2: Essentials");
             System.out.println("3: Standout");
@@ -435,7 +433,6 @@ public class Main {
     }
 
 
-
     public static void handle_listings_host() throws SQLException {
         Scanner scanner = new Scanner(System.in);
         display_host_lisitings();
@@ -443,47 +440,46 @@ public class Main {
         System.out.println("2: Update My Listing");
         int num = scanner.nextInt();
         ArrayList<Listing> host_listing = data.get_host_Listing(current_user.uid());
-        if(num == 1){
+        if (num == 1) {
             System.out.println("Enter the number next to the Listing");
             int num2 = scanner.nextInt();
-            if(num2 >= 0 && num2 < host_listing.size()){
+            if (num2 >= 0 && num2 < host_listing.size()) {
                 data.delete_listing(host_listing.get(num2).LID());
             }
 
-        }
-        else if(num == 2){
+        } else if (num == 2) {
             System.out.println("1: Add dates");
             System.out.println("2: Remove dates");
             System.out.println("3: Update Price");
             int num1 = scanner.nextInt();
             System.out.println("Enter the number next to the Listing");
             int num2 = scanner.nextInt();
-            if(num2 >= 0 && num2 < host_listing.size()){
+            if (num2 >= 0 && num2 < host_listing.size()) {
                 calendar_for_listing(num1, host_listing.get(num2).LID());  // updating the calendar dates for the listing.
             }
         }
 
     }
+
     public static void display_host_lisitings() throws SQLException {
-        ArrayList<Listing>host_listing= data.get_host_Listing(current_user.uid());
-        for ( int i=0; i<host_listing.size();i++){
-            System.out.println(i+":"+host_listing.get(i));
+        ArrayList<Listing> host_listing = data.get_host_Listing(current_user.uid());
+        for (int i = 0; i < host_listing.size(); i++) {
+            System.out.println(i + ":" + host_listing.get(i));
         }
 
     }
 
     public static void calendar_for_listing(int num, int lid) throws SQLException {
-        if(num == 1){
+        if (num == 1) {
             add_dates(lid);
-        }
-        else if(num == 2){
+        } else if (num == 2) {
             remove_dates(lid);
-        }
-        else if(num == 3){
+        } else if (num == 3) {
             update_price(lid);
         }
 
     }
+
     public static void add_dates(int lid) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the start date (YYYY-MM-DD)");
@@ -496,11 +492,11 @@ public class Main {
         LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
         LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
 
-        if(data.check_status_calendar(lid, startDate, endDate, "[OPEN]")){
+        if (data.check_status_calendar(lid, startDate, endDate, "[OPEN]")) {
             System.out.println("There are [OPEN] days exist within this range");
         }
         int added = data.add_calendar(lid, start, end, price);
-        System.out.println("There are " + added + " newly ADDED dates between " + start +" and " + end);
+        System.out.println("There are " + added + " newly ADDED dates between " + start + " and " + end);
     }
 
     public static void remove_dates(int lid) throws SQLException {
@@ -514,7 +510,7 @@ public class Main {
         LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
 
         // check if the dates were booked
-        if(data.check_reservation(lid, startDate, endDate)){
+        if (data.check_reservation(lid, startDate, endDate)) {
             System.out.println("There are [RESERVED] days between " + start + " and " + end);
         }
 
@@ -535,62 +531,63 @@ public class Main {
         LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
 
         // check if the dates were booked
-        if(data.check_reservation(lid, startDate, endDate)){
+        if (data.check_reservation(lid, startDate, endDate)) {
             System.out.println("There are [RESERVED] days between " + start + " and " + end);
         }
 
         int updated = data.update_price(lid, startDate, endDate, price);
-        System.out.println("There are " + updated + " number of days between" + start + " and " + end + " with " + price +" per night");
+        System.out.println("There are " + updated + " number of days between" + start + " and " + end + " with " + price + " per night");
     }
 
 
-    public static void view_listings() throws SQLException{
+    public static void view_listings() throws SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("1:Search by Latitude and Longitude");
         System.out.println("2:Search by Postalcode");
         System.out.println("3:Search by Address");
         int num = scanner.nextInt();
         StringBuilder filter_query = new StringBuilder();
-        ArrayList<Listing>Listing = new ArrayList<>();
-        if(num==1){
-            Listing=search_by_coords();
+        ArrayList<Listing> Listing = new ArrayList<>();
+        if (num == 1) {
+            Listing = search_by_coords();
         }
-        if(num==2){
-            Listing=search_by_postal();
+        if (num == 2) {
+            Listing = search_by_postal();
         }
-        if(num==3){
-            Listing=search_by_address();
+        if (num == 3) {
+            Listing = search_by_address();
         }
         System.out.println("Make a Reservation 1:Yes or 2:No");
-        int num2= scanner.nextInt();
-        if(num2==1){
+        int num2 = scanner.nextInt();
+        if (num2 == 1) {
             Make_a_reservation(Listing);
         }
     }
+
     public static ArrayList<Listing> search_by_coords() throws SQLException {
         double latitude;
         double longitude;
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter Latitude (-90 to 90)");
-        latitude= scanner.nextDouble();
+        latitude = scanner.nextDouble();
         System.out.println("Enter Longitude (-180 to 180)");
-        longitude= scanner.nextDouble();
+        longitude = scanner.nextDouble();
         System.out.println("1: Enter a Specific distance in (Km)");
         System.out.println("2: Default within (5 Km)");
-        double dist=5000;
+        double dist = 5000;
         double num = scanner.nextInt();
-        if (num==1){
+        if (num == 1) {
             System.out.println("Enter the distance:");
-            dist= scanner.nextDouble();
-            dist=dist*1000;
+            dist = scanner.nextDouble();
+            dist = dist * 1000;
 
         }
-        System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status","Distance");
-        ArrayList<Listing>coords=data.search_coords(latitude,longitude,dist);
+        System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
+        ArrayList<Listing> coords = data.search_coords(latitude, longitude, dist);
         // Print each Listing in a table format
-        for (Listing listing :coords) {
+        for (Listing listing : coords) {
             Address address = listing.address();
-            System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(),listing.distance());
+            System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(), listing.distance());
         }
         data.remove_view("Filter0");
         data.remove_view("Filter1");
@@ -598,11 +595,11 @@ public class Main {
         data.remove_view("Filter3");
         ArrayList<Listing> listings;
         StringBuilder filter_query0 = new StringBuilder();
-        filter_query0.append("SELECT *, ST_Distance_Sphere(point(Longitude, Latitude), point("+longitude+", "+latitude+")) as Distance FROM Listings JOIN Address USING (AID) WHERE Status='[ACTIVE]' Having Distance <= " + dist + " ORDER BY Distance");
-        data.view("Filter0",filter_query0.toString());
+        filter_query0.append("SELECT *, ST_Distance_Sphere(point(Longitude, Latitude), point(" + longitude + ", " + latitude + ")) as Distance FROM Listings JOIN Address USING (AID) WHERE Status='[ACTIVE]' Having Distance <= " + dist + " ORDER BY Distance");
+        data.view("Filter0", filter_query0.toString());
         System.out.println("Search by Filter 1:Yes or 2:No");
         int num3 = scanner.nextInt();
-        if (num3==1) {
+        if (num3 == 1) {
             System.out.println("Filter by date range 1:Yes or 2:No");
             int fil1 = scanner.nextInt();
             scanner.nextLine();
@@ -622,7 +619,7 @@ public class Main {
                 //listings = data.Listings_from_view(filter_query1.toString());
             } else {
                 data.view("Filter1", "SELECT * FROM Filter0");
-               // listings = data.Listings_from_view(filter_query0.toString());
+                // listings = data.Listings_from_view(filter_query0.toString());
             }
 
             System.out.println("Filter by Price range 1:Yes or 2:No");
@@ -639,41 +636,39 @@ public class Main {
                 data.view("Filter2", "SELECT * FROM Filter1");
             }
             System.out.println("Filter by Amenities 1:Yes or 2:No");
-            int fil3= scanner.nextInt();
+            int fil3 = scanner.nextInt();
             StringBuilder filter_query3 = new StringBuilder();
             scanner.nextLine();
-            if(fil3==1){
+            if (fil3 == 1) {
                 set_of_amenities();
                 System.out.println(" Enter the amenities by which you would like to filter the results");
                 String string = scanner.nextLine();
-                String [] amenities= string.split(",");
+                String[] amenities = string.split(",");
                 StringBuilder set = new StringBuilder();
                 set.append("(");
-                for (int i=0; i<amenities.length; i++) {
-                    if (i==0) {
+                for (int i = 0; i < amenities.length; i++) {
+                    if (i == 0) {
                         set.append("'" + amenities[i].trim() + "'");
                     } else {
                         set.append("," + "'" + amenities[i].trim() + "'");
                     }
                 }
                 set.append(")");
-                filter_query3.append("SELECT * FROM Filter2 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ amenities.length +")");
+                filter_query3.append("SELECT * FROM Filter2 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN " + set + " GROUP BY Listings.LID HAVING COUNT(*) >= " + amenities.length + ")");
                 data.view("Filter3", filter_query3.toString());
-            }
-            else{
+            } else {
                 data.view("Filter3", "SELECT * FROM Filter2");
             }
-
 
 
             PreparedStatement s = data.get_queries("Filter3");
             listings = data.Listings_from_view(s);
 
-            System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status","Distance");
-            for (Listing listing :listings) {
+            System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
+            for (Listing listing : listings) {
                 Address address = listing.address();
-                double km = listing.distance()/1000;
-                System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(),km);
+                double km = listing.distance() / 1000;
+                System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(), km);
             }
             data.remove_view("Filter0");
             data.remove_view("Filter1");
@@ -682,9 +677,9 @@ public class Main {
 
             return listings;
         }
-            // System.out.println("Filter by Amenities 1:Yes or 2:No");
+        // System.out.println("Filter by Amenities 1:Yes or 2:No");
 //         int fil3 = scanner.nextInt();
-       return coords;
+        return coords;
 
     }
 
@@ -692,8 +687,8 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter Postal Code");
         String postalcode = scanner.nextLine();
-        String code = postalcode.toUpperCase().trim().substring(0,3);
-        ArrayList<Listing>post_listing= data.search_postalcode(postalcode);
+        String code = postalcode.toUpperCase().trim().substring(0, 3);
+        ArrayList<Listing> post_listing = data.search_postalcode(postalcode);
         print_table(post_listing);
         data.remove_view("Filter3");
         data.remove_view("Filter4");
@@ -701,11 +696,11 @@ public class Main {
         data.remove_view("Filter6");
         ArrayList<Listing> listings;
         StringBuilder filter_query0 = new StringBuilder();
-        filter_query0.append("SELECT * FROM LISTINGS NATURAL JOIN ADDRESS WHERE Status='[ACTIVE]'AND SUBSTRING(Postal_code,1,3) ='"+code+"'");
-        data.view("Filter3",filter_query0.toString());
+        filter_query0.append("SELECT * FROM LISTINGS NATURAL JOIN ADDRESS WHERE Status='[ACTIVE]'AND SUBSTRING(Postal_code,1,3) ='" + code + "'");
+        data.view("Filter3", filter_query0.toString());
         System.out.println("Search by Filter 1:Yes or 2:No");
         int num3 = scanner.nextInt();
-        if (num3==1) {
+        if (num3 == 1) {
             System.out.println("Filter by date range 1:Yes or 2:No");
             int fil1 = scanner.nextInt();
             scanner.nextLine();
@@ -742,28 +737,27 @@ public class Main {
                 data.view("Filter5", "SELECT * FROM Filter4");
             }
             System.out.println("Filter by Amenities 1:Yes or 2:No");
-            int fil3= scanner.nextInt();
+            int fil3 = scanner.nextInt();
             StringBuilder filter_query3 = new StringBuilder();
             scanner.nextLine();
-            if(fil3==1){
+            if (fil3 == 1) {
                 set_of_amenities();
                 System.out.println(" Enter the amenities by which you would like to filter the results");
                 String string = scanner.nextLine();
-                String [] amenities= string.split(",");
+                String[] amenities = string.split(",");
                 StringBuilder set = new StringBuilder();
                 set.append("(");
-                for (int i=0; i<amenities.length; i++) {
-                    if (i==0) {
+                for (int i = 0; i < amenities.length; i++) {
+                    if (i == 0) {
                         set.append("'" + amenities[i].trim() + "'");
                     } else {
                         set.append("," + "'" + amenities[i].trim() + "'");
                     }
                 }
                 set.append(")");
-                filter_query3.append("SELECT * FROM Filter5 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ amenities.length +")");
+                filter_query3.append("SELECT * FROM Filter5 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN " + set + " GROUP BY Listings.LID HAVING COUNT(*) >= " + amenities.length + ")");
                 data.view("Filter6", filter_query3.toString());
-            }
-            else{
+            } else {
                 data.view("Filter6", "SELECT * FROM Filter5");
             }
 
@@ -782,7 +776,7 @@ public class Main {
 
     }
 
-    public static ArrayList<Listing>search_by_address() throws SQLException {
+    public static ArrayList<Listing> search_by_address() throws SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Street: ");
         String street = scanner.nextLine();
@@ -792,7 +786,7 @@ public class Main {
 
         System.out.print("Country: ");
         String country = scanner.nextLine();
-        ArrayList<Listing>address_listing= data.search_address(street,city,country);
+        ArrayList<Listing> address_listing = data.search_address(street, city, country);
         print_table(address_listing);
         data.remove_view("Filter3");
         data.remove_view("Filter4");
@@ -800,11 +794,11 @@ public class Main {
         data.remove_view("Filter6");
         ArrayList<Listing> listings;
         StringBuilder filter_query0 = new StringBuilder();
-        filter_query0.append("SELECT * FROM LISTINGS NATURAL JOIN ADDRESS WHERE Status='[ACTIVE]'AND Street='"+street+"' AND City= '"+city+"'AND Country='"+country+"'");
-        data.view("Filter3",filter_query0.toString());
+        filter_query0.append("SELECT * FROM LISTINGS NATURAL JOIN ADDRESS WHERE Status='[ACTIVE]'AND Street='" + street + "' AND City= '" + city + "'AND Country='" + country + "'");
+        data.view("Filter3", filter_query0.toString());
         System.out.println("Search by Filter 1:Yes or 2:No");
         int num3 = scanner.nextInt();
-        if (num3==1) {
+        if (num3 == 1) {
             System.out.println("Filter by date range 1:Yes or 2:No");
             int fil1 = scanner.nextInt();
             scanner.nextLine();
@@ -841,28 +835,27 @@ public class Main {
                 data.view("Filter5", "SELECT * FROM Filter4");
             }
             System.out.println("Filter by Amenities 1:Yes or 2:No");
-            int fil3= scanner.nextInt();
+            int fil3 = scanner.nextInt();
             StringBuilder filter_query3 = new StringBuilder();
             scanner.nextLine();
-            if(fil3==1){
+            if (fil3 == 1) {
                 set_of_amenities();
                 System.out.println(" Enter the amenities by which you would like to filter the results");
                 String string = scanner.nextLine();
-                String [] amenities= string.split(",");
+                String[] amenities = string.split(",");
                 StringBuilder set = new StringBuilder();
                 set.append("(");
-                for (int i=0; i<amenities.length; i++) {
-                    if (i==0) {
+                for (int i = 0; i < amenities.length; i++) {
+                    if (i == 0) {
                         set.append("'" + amenities[i].trim() + "'");
                     } else {
                         set.append("," + "'" + amenities[i].trim() + "'");
                     }
                 }
                 set.append(")");
-                filter_query3.append("SELECT * FROM Filter5 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ amenities.length +")");
+                filter_query3.append("SELECT * FROM Filter5 WHERE LID IN (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN " + set + " GROUP BY Listings.LID HAVING COUNT(*) >= " + amenities.length + ")");
                 data.view("Filter6", filter_query3.toString());
-            }
-            else{
+            } else {
                 data.view("Filter6", "SELECT * FROM Filter5");
             }
 
@@ -882,31 +875,32 @@ public class Main {
         return address_listing;
     }
 
-    public static void set_of_amenities(){
+    public static void set_of_amenities() {
         System.out.println("Here are the set amenities to search from ");
         System.out.println("1.Type of place: Entire Place , Shared Room , Room ");
         System.out.println("2.Essentials : Wifi,TV,Kitchen,Washer,Free parking, Air conditioning, Dedicated workspace");
         System.out.println("3. Standout : Pool,Hot tub, Outdoor Dining area ,Beach Access, Lakes access, Gym,Prime locations, Public transport access");
         System.out.println("4. Safety: Smoke alarm, First aid kit, Fire extinguisher, CO alarm");
     }
-    public static void print_table(ArrayList<Listing> List){
+
+    public static void print_table(ArrayList<Listing> List) {
         System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "Index", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status");
-        int index=0;
+        int index = 0;
         // Print each Listing in a table format
-        for (Listing listing :List) {
+        for (Listing listing : List) {
             Address address = listing.address();
-            System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-15s %n",index++, listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status());
+            System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-15s %n", index++, listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status());
         }
 
 
     }
 
-    public static void print_reservation(ArrayList<Reservation> reservations){
-        System.out.printf("%-5s %-10s %-10s %-10s %-15s %-10s %-10s %-10s %-15s %n","RID", "UID", "LID", "Price", "Availability", "start_date", "end_date", "Rating", "Comment");
+    public static void print_reservation(ArrayList<Reservation> reservations) {
+        System.out.printf("%-5s %-10s %-10s %-10s %-15s %-10s %-10s %-10s %-15s %n", "RID", "UID", "LID", "Price", "Availability", "start_date", "end_date", "Rating", "Comment");
         int index = 0;
         // Print each Listing in a table format
         for (Reservation rs : reservations) {
-            System.out.printf("%-5d %-5d %-10d %-10d %-10f %-15s %-10s %-10s %-10d %-15s %n",index++, rs.RID(), rs.UID(), rs.LID(), rs.price(), rs.availability(), rs.start(), rs.end(), rs.rating(), rs.comment());
+            System.out.printf("%-5d %-5d %-10d %-10d %-10f %-15s %-10s %-10s %-10d %-15s %n", index++, rs.RID(), rs.UID(), rs.LID(), rs.price(), rs.availability(), rs.start(), rs.end(), rs.rating(), rs.comment());
         }
     }
 
@@ -916,40 +910,35 @@ public class Main {
         System.out.println("3:View Canceled Reservations");
         Scanner scanner = new Scanner(System.in);
         int num = scanner.nextInt();
-        if(current_user.getClass().equals(Guest.class)){
-            if(num == 1){
+        if (current_user.getClass().equals(Guest.class)) {
+            if (num == 1) {
                 ArrayList<Reservation> reservations = data.Guest_reservations(current_user.uid());
                 print_reservation(reservations);
                 System.out.println("Do you want to CANCEL any reservation? (1:YES | 2:NO)");
                 int ans = scanner.nextInt();
-                if(ans == 1){
+                if (ans == 1) {
                     cancel_reservation(reservations);
                 }
-            }
-            else if(num == 2){
+            } else if (num == 2) {
                 ArrayList<Reservation> past = data.Guest_past(current_user.uid());
                 print_reservation(past);
-            }
-            else if(num == 3){
+            } else if (num == 3) {
                 ArrayList<Reservation> canceled = data.Guest_canceled(current_user.uid());
                 print_reservation(canceled);
             }
-        }
-        else if(current_user.getClass().equals(Host.class)){
-            if(num == 1){
+        } else if (current_user.getClass().equals(Host.class)) {
+            if (num == 1) {
                 ArrayList<Reservation> reservations = data.host_reservation(current_user.uid());
                 print_reservation(reservations);
                 System.out.println("Do you want to CANCEL any reservation? (1:YES | 2:NO)");
                 int ans = scanner.nextInt();
-                if(ans == 1){
+                if (ans == 1) {
                     cancel_reservation(reservations);
                 }
-            }
-            else if(num == 2){
+            } else if (num == 2) {
                 ArrayList<Reservation> past = data.host_past(current_user.uid());
                 print_reservation(past);
-            }
-            else if(num == 3){
+            } else if (num == 3) {
                 ArrayList<Reservation> canceled = data.host_canceled(current_user.uid());
                 print_reservation(canceled);
 
@@ -962,9 +951,9 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the Index Value next to the listing that you prefer");
         int num = scanner.nextInt();
-        int LID=-1;
-        if(num >= 0 && num < List.size()){
-            LID=List.get(num).LID();
+        int LID = -1;
+        if (num >= 0 && num < List.size()) {
+            LID = List.get(num).LID();
         }
         scanner.nextLine();
         System.out.println("Enter the Start date of your Reservation (YYYY-MM-DD):");
@@ -976,17 +965,17 @@ public class Main {
         LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
         LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
         System.out.println("Here are the Availabilities:");
-        ArrayList<Calendar>availability=data.Availabilities(LID,startDate,endDate);
+        ArrayList<Calendar> availability = data.Availabilities(LID, startDate, endDate);
         int size = availability.size();
         System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
 
         // Print each Listing in a table format
-        for (Calendar calendar :availability) {
+        for (Calendar calendar : availability) {
             //System.out.printf("%-5d %-10s %-10f %-10f %-10s %n",calendar.CID(),calendar.LID(),calendar.availability(),calendar.Price(),calendar.date());
             System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
         }
-        while(size==0){
+        while (size == 0) {
             System.out.println("No Availability for this range of dates");
             System.out.println("Enter the new range of dates");
             System.out.println("Enter the Start date (YYYY-MM-DD):");
@@ -998,36 +987,36 @@ public class Main {
             LocalDate startDate2 = LocalDate.parse(start2, DateTimeFormatter.ISO_LOCAL_DATE);
             LocalDate endDate2 = LocalDate.parse(end2, DateTimeFormatter.ISO_LOCAL_DATE);
             System.out.println("Here are the Availabilities:");
-            ArrayList<Calendar>availability2=data.Availabilities(LID,startDate2,endDate2);
+            ArrayList<Calendar> availability2 = data.Availabilities(LID, startDate2, endDate2);
             System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
-            for (Calendar calendar :availability2) {
+            for (Calendar calendar : availability2) {
                 //System.out.printf("%-5d %-10s %-10f %-10f %-10s %n",calendar.CID(),calendar.LID(),calendar.availability(),calendar.Price(),calendar.date());
                 System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
             }
-            size=availability2.size();
+            size = availability2.size();
         }
         System.out.println("Would you like to make a reservation at this listing on the date range entered?(1:YES | 2:NO)");
 
-            int num3 = scanner.nextInt();
-            if (num3 == 1) {
-                double total_cost = data.Total_price(startDate, endDate, LID);
-                System.out.println(total_cost);
-                data.Make_Reservation(current_user.uid(), LID, startDate, endDate, data.Total_price(startDate, endDate, LID));
-                LocalDate currentDate = startDate;
-                while (!currentDate.isAfter(endDate)) {
-                    data.update_day_status(LID, currentDate, "[RESERVED]");
-                    currentDate = currentDate.plusDays(1);
-                }
+        int num3 = scanner.nextInt();
+        if (num3 == 1) {
+            double total_cost = data.Total_price(startDate, endDate, LID);
+            System.out.println(total_cost);
+            data.Make_Reservation(current_user.uid(), LID, startDate, endDate, data.Total_price(startDate, endDate, LID));
+            LocalDate currentDate = startDate;
+            while (!currentDate.isAfter(endDate)) {
+                data.update_day_status(LID, currentDate, "[RESERVED]");
+                currentDate = currentDate.plusDays(1);
             }
         }
+    }
 
 
     public static void cancel_reservation(ArrayList<Reservation> reservations) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the Index Value next to the Reservation that you want to CANCEL");
         int num = scanner.nextInt();
-        if(num < 0 || num > reservations.size()){
+        if (num < 0 || num > reservations.size()) {
             System.out.println("Invalid Input");
         }
         scanner.nextLine();
@@ -1036,7 +1025,7 @@ public class Main {
         System.out.println(rs.start());
         LocalDate endDate = rs.end();
         while (!currentDate.isAfter(endDate)) {
-            data.update_day_status(rs.LID(), currentDate,"[OPEN]");
+            data.update_day_status(rs.LID(), currentDate, "[OPEN]");
             currentDate = currentDate.plusDays(1);
         }
         data.cancel_reservation_status(rs.RID());
@@ -1049,12 +1038,11 @@ public class Main {
         System.out.println("1: Review My Reservation");
         System.out.println("2: Review My Host");
         int num = scanner.nextInt();
-        if(num == 1){
+        if (num == 1) {
             ArrayList<Reservation> past = data.Guest_past(current_user.uid());
             print_reservation(past);
             rate_reservation(past);
-        }
-        else if(num == 2){
+        } else if (num == 2) {
             ArrayList<User> hosts = data.get_host(current_user.uid());
             print_users(hosts);
             rate_user(hosts);
@@ -1071,7 +1059,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the Index Value next to the Reservation that you want to REVIEW");
         int num = scanner.nextInt();
-        if(num < 0 || num > reservations.size()){
+        if (num < 0 || num > reservations.size()) {
             System.out.println("Invalid Input");
         }
         scanner.nextLine();
@@ -1088,10 +1076,10 @@ public class Main {
     public static void rate_user(ArrayList<User> user) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         int num = scanner.nextInt();
-        if(num < 0 || num > user.size()){
+        if (num < 0 || num > user.size()) {
             System.out.println("Invalid Input");
         }
-        if(current_user.getClass().equals(Guest.class)){
+        if (current_user.getClass().equals(Guest.class)) {
             System.out.println("Enter the Index Value next to the HOST that you want to REVIEW");
             scanner.nextLine();
             User u = user.get(num);
@@ -1101,8 +1089,7 @@ public class Main {
             String comment = scanner.nextLine();
             data.add_review(current_user.uid(), u.uid(), comment, rating);
             System.out.println("Your HOST is REVIEWED");
-        }
-        else if(current_user.getClass().equals(Host.class)){
+        } else if (current_user.getClass().equals(Host.class)) {
             System.out.println("Enter the Index Value next to the GUEST that you want to REVIEW");
             scanner.nextLine();
             User u = user.get(num);
@@ -1116,12 +1103,12 @@ public class Main {
 
     }
 
-    public static void print_users(ArrayList<User> users){
+    public static void print_users(ArrayList<User> users) {
         System.out.printf("%-5s %-10s %-10s %n", "Name", "Email", "Occupation");
         int index = 0;
         // Print each Listing in a table format
         for (User us : users) {
-            System.out.printf("%-5d %-5d %-10d %-10d %-10f %-15s %-10s %-10s %-10d %-15s %n",index++, us.name(), us.email(), us.occupation());
+            System.out.printf("%-5d %-5d %-10d %-10d %-10f %-15s %-10s %-10s %-10d %-15s %n", index++, us.name(), us.email(), us.occupation());
         }
     }
 
@@ -1141,7 +1128,7 @@ public class Main {
         System.out.println("12: Report of noun phrases associated with the Listing");
         int num = scanner.nextInt();
 
-        if(num == 1){
+        if (num == 1) {
             System.out.println("Enter the start date (YYYY-MM-DD):");
             String start = scanner.next().trim();
             System.out.println("Enter the end date (YYYY-MM-DD):");
@@ -1149,8 +1136,7 @@ public class Main {
             LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
             LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
             data.report_case1(startDate, endDate);
-        }
-        else if(num == 2){
+        } else if (num == 2) {
             System.out.println("Enter the start date (YYYY-MM-DD):");
             String start = scanner.next().trim();
             System.out.println("Enter the end date (YYYY-MM-DD):");
@@ -1158,26 +1144,19 @@ public class Main {
             LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
             LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
             data.report_case2(startDate, endDate);
-        }
-        else if(num == 3){
+        } else if (num == 3) {
             data.report_case3();
-        }
-        else if(num == 4){
+        } else if (num == 4) {
             data.report_case4();
-        }
-        else if(num == 5){
+        } else if (num == 5) {
             data.report_case5();
-        }
-        else if(num == 6){
+        } else if (num == 6) {
             data.report_case6();
-        }
-        else if(num == 7){
+        } else if (num == 7) {
             data.report_case7();
-        }
-        else if(num == 8){
+        } else if (num == 8) {
             data.report_case8();
-        }
-        else if(num == 9){
+        } else if (num == 9) {
             System.out.println("Enter the start date (YYYY-MM-DD):");
             String start = scanner.next().trim();
             System.out.println("Enter the end date (YYYY-MM-DD):");
@@ -1185,8 +1164,7 @@ public class Main {
             LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
             LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
             data.report_case9(startDate, endDate);
-        }
-        else if(num == 10){
+        } else if (num == 10) {
             System.out.println("Enter the start date (YYYY-MM-DD):");
             String start = scanner.next().trim();
             System.out.println("Enter the end date (YYYY-MM-DD):");
@@ -1194,13 +1172,11 @@ public class Main {
             LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
             LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
             data.report_case10(startDate, endDate);
-        }
-        else if(num == 11){
+        } else if (num == 11) {
             System.out.println("Enter the year that you would like the see the report on:");
             int year = scanner.nextInt();
             data.report_case11(year);
-        }
-        else if(num == 12){
+        } else if (num == 12) {
             report_case12();
         }
 
@@ -1213,28 +1189,28 @@ public class Main {
         ResultSet rs = data.get_comments();
         LinkedHashMap<Integer, Integer> table = data.lid_totalReservation();
         Set<Integer> lids = table.keySet();
-        for(Integer lid : lids){
+        for (Integer lid : lids) {
             int num = table.get(lid);
             HashMap<String, Integer> noun_phrases = new HashMap<>();
-            for(int i = 0; i < num; i++){
+            for (int i = 0; i < num; i++) {
                 rs.next();
                 String comment = rs.getString("Comment");
                 String[] sentence = comment.toLowerCase().split("[.!?]");
-                for(String sentences: sentence){
+                for (String sentences : sentence) {
                     Parse[] parse = ParserTool.parseLine(sentences, parser, 1);
-                    for(Parse p : parse){
+                    for (Parse p : parse) {
                         NounPhrases(p, noun_phrases);
                     }
                 }
             }
-            for(String str : noun_phrases.keySet()){
+            for (String str : noun_phrases.keySet()) {
                 int frq = noun_phrases.get(str);
-                System.out.println(lid + " - " + str  + " : " + frq);
+                System.out.println(lid + " - " + str + " : " + frq);
             }
         }
     }
 
-    public static void NounPhrases(Parse p, HashMap<String, Integer> noun_phrases){
+    public static void NounPhrases(Parse p, HashMap<String, Integer> noun_phrases) {
         if (p.getType().equals("NP")) {
             String np = p.getCoveredText();
             noun_phrases.put(np, noun_phrases.getOrDefault(np, 0) + 1);
@@ -1245,88 +1221,86 @@ public class Main {
 
     public static double recommend_price(int lid, String type, String city, String country, String postalcode, double lat, double lon, boolean var) throws SQLException {
         ArrayList<Amenity> amenities = data.listing_amenities(lid);
-        String set =  make_string(amenities);
-        double price=-1;
-        price = data.listing_avg_price(set,type, country, city , amenities.size());
-        if(price > 0){
-            if(var){
+        String set = make_string(amenities);
+        double price = -1;
+        price = data.listing_avg_price(set, type, country, city, amenities.size());
+        if (price > 0) {
+            if (var) {
                 System.out.println("Recommended price for such Listing per night: " + price);
-                helper_distance(lat,lon,city,price);
+                helper_distance(lat, lon, city, price);
             }
             return price;
         }
         price = data.listing_avg_price(set, type, country, amenities.size());
-        if(price > 0){
-            if(var){
+        if (price > 0) {
+            if (var) {
                 System.out.println("Recommended price for such Listing per night: " + price);
-                helper_distance(lat,lon,city,price);
+                helper_distance(lat, lon, city, price);
             }
             return price;
         }
-        price= data.listing_avg_price(set,type,country,city, postalcode, amenities.size());
-        if(price > 0){
-            if(var){
+        price = data.listing_avg_price(set, type, country, city, postalcode, amenities.size());
+        if (price > 0) {
+            if (var) {
                 System.out.println("Recommended price for such Listing per night: " + price);
-                helper_distance(lat,lon,city,price);
+                helper_distance(lat, lon, city, price);
             }
             return price;
         }
 
-        if(price == -1){
+        if (price == -1) {
             System.out.println("Not enough data to recommend price");
         }
-     return price;
+        return price;
 
     }
 
     public static void helper_distance(double lat, double lon, String city, double price) throws SQLException {
-        double latitude=0;
-        double longitude=0;
-        String attraction ="";
-        if(city.equals("Toronto")){ // Cn tower
-            latitude=43.6426;
-            longitude= -79.3871;
-            attraction="CN Tower";
+        double latitude = 0;
+        double longitude = 0;
+        String attraction = "";
+        if (city.equals("Toronto")) { // Cn tower
+            latitude = 43.6426;
+            longitude = -79.3871;
+            attraction = "CN Tower";
         }
-        if(city.equals("New York")){// Times square
-            latitude=40.7580;
-            longitude= -73.9855;
-            attraction="Times Square";
+        if (city.equals("New York")) {// Times square
+            latitude = 40.7580;
+            longitude = -73.9855;
+            attraction = "Times Square";
         }
-        if(city.equals("Vancouver")){// Art Gallery
-            latitude=49.2827;
-            longitude= -123.1207;
-            attraction="Vancouver Art Gallery";
+        if (city.equals("Vancouver")) {// Art Gallery
+            latitude = 49.2827;
+            longitude = -123.1207;
+            attraction = "Vancouver Art Gallery";
 
         }
-        if(city.equals("San Francisco")){ // Marina District
-            latitude=37.8028;
-            longitude=-122.4376;
-            attraction="Marina District";
+        if (city.equals("San Francisco")) { // Marina District
+            latitude = 37.8028;
+            longitude = -122.4376;
+            attraction = "Marina District";
         }
-        double distance = data.avg_dist_from_attraction(latitude,longitude,lat,lon);
-        double km=distance/1000;
-        if(km<=5){
-            System.out.println("Your Listing is within 5 km to "+ attraction);
-            System.out.println("Your new recommended price per night: "+ (price+80.00));
+        double distance = data.avg_dist_from_attraction(latitude, longitude, lat, lon);
+        double km = distance / 1000;
+        if (km <= 5) {
+            System.out.println("Your Listing is within 5 km to " + attraction);
+            System.out.println("Your new recommended price per night: " + (price + 80.00));
 
-        }
-        else if(km>5 && km<=15){
-            System.out.println("Your Listing is within (5-15 km) to "+ attraction);
-            System.out.println("Your new recommended price per night: "+ (price+50.00));
+        } else if (km > 5 && km <= 15) {
+            System.out.println("Your Listing is within (5-15 km) to " + attraction);
+            System.out.println("Your new recommended price per night: " + (price + 50.00));
 
-        }
-        else{
+        } else {
             System.out.println("We are unable to find a landmark close to your listing at the moment.");
         }
 
     }
 
-    public static String make_string(ArrayList<Amenity> amenities){
+    public static String make_string(ArrayList<Amenity> amenities) {
         StringBuilder set = new StringBuilder();
         set.append("(");
-        for (int i=0; i<amenities.size(); i++) {
-            if (i==0) {
+        for (int i = 0; i < amenities.size(); i++) {
+            if (i == 0) {
                 set.append("'" + amenities.get(i).Amenity_Name() + "'");
             } else {
                 set.append("," + "'" + amenities.get(i).Amenity_Name() + "'");
@@ -1337,54 +1311,67 @@ public class Main {
     }
 
 
-
-
     public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
         Class.forName(dbClassName);
         data = new Database(Project, User, Password);
         boolean Logged_into_bnb = false; // to know if the user is logged in to MyBnB
         Scanner scanner = new Scanner(System.in);
         data.update_reservation();
+        System.out.println("*************************************************************");
         System.out.println(" Welcome to MyBnB!");
+        System.out.println("*************************************************************");
         System.out.println();
+        while (true) {
+            if (!Logged_into_bnb) {
+                displayMenu();
+                System.out.print("Enter your choice: ");
+                int num = scanner.nextInt();
+                switch (num) {
+                    case 1:
+                        Login();
+                        Logged_into_bnb = true;
+                        break;
+                    case 2:
+                        Signup();
+                        break;
+                    case 3:
+                        display_reports();
+                        break;
+                    case 4:
+                        System.out.println("Exiting MyBnB. Thank you!");
+                        return;
+                }
+            }
 
-        if (!Logged_into_bnb) {
-            displayMenu();
-            System.out.print("Enter your choice: ");
-            int num = scanner.nextInt();
-            switch (num) {
-                case 1:
-                    Login();
-                    Logged_into_bnb = true;
-                    break;
-                case 2:
-                    Signup();
-                    break;
-                case 3:
-                    display_reports();
-                    break;
+            if (Logged_into_bnb) {
+                if (current_user.getClass() == Host.class) {
+                    displayHostMenu();
+                    System.out.print("Enter your choice: ");
+                    int host_num = scanner.nextInt();
+                    if (host_num == 6) {
+                        Logged_into_bnb = false;
+                        System.out.println("Logged out successfully!");
+                        continue;
+                    }
+                    Host_options(host_num, current_user);
+
+                } else {
+                    displayGuestMenu();
+                    System.out.print("Enter your choice: ");
+                    int guest_num = scanner.nextInt();
+                    if (guest_num == 5) {
+                        Logged_into_bnb = false;
+                        System.out.println("Logged out successfully!");
+                        continue;
+                    }
+                    Guest_options(guest_num, current_user);
+
+
+                }
             }
         }
 
-        if (Logged_into_bnb) {
-            if (current_user.getClass() == Host.class) {
-                displayHostMenu();
-                System.out.print("Enter your choice: ");
-                int host_num = scanner.nextInt();
-                Host_options(host_num, current_user);
 
-            } else {
-                displayGuestMenu();
-                System.out.print("Enter your choice: ");
-                int guest_num = scanner.nextInt();
-                Guest_options(guest_num, current_user);
-
-
-            }
-        }
     }
-
-
-
 }
 
