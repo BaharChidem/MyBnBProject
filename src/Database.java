@@ -669,7 +669,7 @@ public class Database {
     }
 
     public ArrayList<User> get_host(int UID) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("SELECT U.* FROM Reservation R, Listings L, Users U WHERE R.RID = L.RID AND L.UID = U.UID AND R.UID=? AND R.Availability='[PAST RESERVATION]'AND U.Account = '[ACTIVE]'");
+        PreparedStatement stmt = connection.prepareStatement("SELECT U.* FROM Reservation R, Listings L, Users U WHERE R.LID = L.LID AND L.UID = U.UID AND R.UID=? AND R.Availability='[PAST RESERVATION]'AND U.Account = '[ACTIVE]'");
         stmt.setInt(1, UID);
         ResultSet rs = stmt.executeQuery();
         ArrayList<User> hosts = new ArrayList<>();

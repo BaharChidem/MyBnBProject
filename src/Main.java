@@ -170,9 +170,6 @@ public class Main {
         if (num == 5) {
             data.deactivate_host(user.uid());
         }
-        if (num == 6) {
-            //logout
-        }
 
     }
 
@@ -189,10 +186,6 @@ public class Main {
         if (num == 4) {
             data.deactivate_guest(user.uid());
         }
-        if (num == 5) {
-            //logout
-        }
-
     }
 
     public static void create_listings() throws SQLException {
@@ -234,15 +227,18 @@ public class Main {
 
         System.out.println("Would you like to use HostToolKit to recommend price 1:YES or 2:NO");
         int num = scanner.nextInt();
+        scanner.nextLine();
         if (num == 1) {
             recommend_price(lid, type, city, country, postalcode, lat, lon, true);
         }
         System.out.println("Would you like to use HostToolKit to recommend Amenities 1:YES or 2:NO");
         int num2 = scanner.nextInt();
+        scanner.nextLine();
         if (num2 == 1) {
             HashMap<String, Double> revenue = recommend_amenities(lid, type, city, country);
             System.out.println(" Do you want to select the amenities to display your anticipated revenue (1:Yes|2:No)");
             int num3 = scanner.nextInt();
+            scanner.nextLine();
             if (num3 == 1) {
                 double price = recommend_price(lid, type, city, country, postalcode, lat, lon, false);
                 int num_reservations = data.find_num_reservations(type, country, city);
@@ -896,11 +892,11 @@ public class Main {
     }
 
     public static void print_reservation(ArrayList<Reservation> reservations) {
-        System.out.printf("%-5s %-10s %-10s %-10s %-15s %-10s %-10s %-10s %-15s %n", "RID", "UID", "LID", "Price", "Availability", "start_date", "end_date", "Rating", "Comment");
+        System.out.printf("%-5s %-10s %-10s %-10s %-10s %-15s %-10s %-10s %-10s %-15s %n","Index", "RID", "UID", "LID", "Price", "Availability", "start_date", "end_date", "Rating", "Comment");
         int index = 0;
         // Print each Listing in a table format
         for (Reservation rs : reservations) {
-            System.out.printf("%-5d %-5d %-10d %-10d %-10f %-15s %-10s %-10s %-10d %-15s %n", index++, rs.RID(), rs.UID(), rs.LID(), rs.price(), rs.availability(), rs.start(), rs.end(), rs.rating(), rs.comment());
+            System.out.printf("%-5d %-10d %-10d %-10d %-10.2f %-15s %-10s %-10s %-10d %-15s %n", index++, rs.RID(), rs.UID(), rs.LID(), rs.price(), rs.availability(), rs.start(), rs.end(), rs.rating(), rs.comment());
         }
     }
 
@@ -1107,11 +1103,11 @@ public class Main {
     }
 
     public static void print_users(ArrayList<User> users) {
-        System.out.printf("%-5s %-10s %-10s %n", "Name", "Email", "Occupation");
+        System.out.printf("%-5s %-15s %-25s %-25s %n","Index","Name", "Email", "Occupation");
         int index = 0;
         // Print each Listing in a table format
         for (User us : users) {
-            System.out.printf(" %-10d %-15s %-10s %-10s %n", index++, us.name(), us.email(), us.occupation());
+            System.out.printf("%-5d %-15s %-25s %-25s %n", index++, us.name(), us.email(), us.occupation());
         }
     }
 
@@ -1225,7 +1221,7 @@ public class Main {
     public static double recommend_price(int lid, String type, String city, String country, String postalcode, double lat, double lon, boolean var) throws SQLException {
         ArrayList<Amenity> amenities = data.listing_amenities(lid);
         String set = make_string(amenities);
-        double price = -1;
+        double price = 0;
         price = data.listing_avg_price(set, type, country, city, amenities.size());
         if (price > 0) {
             if (var) {
@@ -1279,8 +1275,6 @@ public class Main {
 
         }
         if (city.equals("San Francisco")) { // Marina District
-            latitude = 37.8028;
-            longitude = -122.4376;
             attraction = "Marina District";
         }
         double distance = data.avg_dist_from_attraction(latitude, longitude, lat, lon);
