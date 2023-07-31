@@ -1135,6 +1135,18 @@ public ArrayList<Amenity> offer_essentials(String user_amenities, String City, S
         return percentage;
     }
 
+    public int find_num_reservations(String type, String country, String city) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT AVG(TotalReservation) AS AvgReservation FROM (SELECT L.LID, COUNT(*) AS TotalReservation FROM Reservation R, Listings L, Address A WHERE L.LID = R.LID AND A.AID=L.AID AND R.Availability != '[CANCELED]' AND A.City=? AND A.Country=? AND L.Type =? GROUP BY L.LID) AS SubQuery");
+        stmt.setString(1, city);
+        stmt.setString(2, country);
+        stmt.setString(3, type);
+        ResultSet rs = stmt.executeQuery();
+        int num = 0;
+        if(rs.next()){
+            num = rs.getInt("AvgReservation");
+        }
+        return num;
+    }
 
 
 

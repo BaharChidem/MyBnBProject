@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password ="Pilyar23$";
+    private static final String Password ="Bhr_1232003";
     public static User current_user=null;
     static Database data;
 
@@ -235,7 +235,7 @@ public class Main {
         System.out.println("Would you like to use HostToolKit to recommend price 1:YES or 2:NO");
         int num = scanner.nextInt();
         if(num == 1){
-            recommend_price(lid, type, city, country, postalcode, lat,lon);
+            recommend_price(lid, type, city, country, postalcode, lat,lon, true);
         }
         System.out.println("Would you like to use HostToolKit to recommend Amenities 1:YES or 2:NO");
         int num2 = scanner.nextInt();
@@ -244,8 +244,9 @@ public class Main {
             System.out.println(" Do you want to select the amenities to display your anticipated revenue (1:Yes|2:No)");
             int num3= scanner.nextInt();
             if(num3==1){
-                double price = recommend_price(lid, type, city, country, postalcode, lat,lon);
-                calculate_revenue(revenue,price);
+                double price = recommend_price(lid, type, city, country, postalcode, lat,lon, false);
+                int num_reservations = data.find_num_reservations(type, country, city);
+                calculate_revenue(revenue,price, num_reservations);
             }
 
 
@@ -336,45 +337,38 @@ public class Main {
         return revenueIncreaseMap;
     }
 
-    public static void calculate_revenue(HashMap<String, Double> revenue, double price) {
+    public static void calculate_revenue(HashMap<String, Double> revenue, double price, int num) {
         Scanner scanner = new Scanner(System.in);
         double totalPriceIncrease = 0.0;
-
         while (!revenue.isEmpty()) {
-            // print the hashmap as options
             for (String amenityName : revenue.keySet()) {
                 System.out.println(amenityName + ": " + revenue.get(amenityName) + "% increase");
             }
-
-            // ask for user input
             System.out.println("Enter the amenity name you want to select (or 'exit' to finish): ");
             String input = scanner.nextLine();
-
-            // exit condition
             if (input.equalsIgnoreCase("exit")) {
                 break;
             }
-
-            // check if the amenity is in the map
             if (revenue.containsKey(input)) {
-                // add the amenity's revenue increase to the total
                 totalPriceIncrease += revenue.get(input);
-
-                // remove the amenity from the map
                 revenue.remove(input);
             } else {
                 System.out.println("Invalid input, please try again.");
             }
         }
-
-        // calculate the final price
         double finalPrice = price + (price * totalPriceIncrease / 100);
-
-        // display the final price
+        System.out.println("*********************************************************************************************");
         System.out.println("The base price before considering all chosen amenities is: " +price);
         System.out.println("The final price, considering all chosen amenities, is: " + finalPrice);
         System.out.println("The percentage increase in your revenue  : "+totalPriceIncrease+" %");
         System.out.println("The Revenue increase in Dollars  :  $ "+(finalPrice-price));
+        if(num == 0){
+            System.out.println("There is no enough data to calculate expected revenue based on reservation");
+        }
+        else{
+            System.out.println("The average number of Reservation for such Listing is : " + num);
+            System.out.println("The expected revenue for the Listing based on the Reservation data : " + (finalPrice * num));
+        }
     }
 
 
@@ -1249,29 +1243,38 @@ public class Main {
             NounPhrases(child, noun_phrases);
     }
 
-    public static double recommend_price(int lid, String type, String city, String country, String postalcode, double lat, double lon) throws SQLException {
+    public static double recommend_price(int lid, String type, String city, String country, String postalcode, double lat, double lon, boolean var) throws SQLException {
         ArrayList<Amenity> amenities = data.listing_amenities(lid);
         String set =  make_string(amenities);
         double price=-1;
         price = data.listing_avg_price(set,type, country, city , amenities.size());
         if(price > 0){
-            System.out.println("Recommended price for such Listing per night: " + price);
-            helper_distance(lat,lon,city,price);
+            if(var){
+                System.out.println("Recommended price for such Listing per night: " + price);
+                helper_distance(lat,lon,city,price);
+            }
             return price;
         }
         price = data.listing_avg_price(set, type, country, amenities.size());
         if(price > 0){
-            System.out.println("Recommended price for such Listing per night: " + price);
-            helper_distance(lat,lon,city,price);
+            if(var){
+                System.out.println("Recommended price for such Listing per night: " + price);
+                helper_distance(lat,lon,city,price);
+            }
             return price;
         }
         price= data.listing_avg_price(set,type,country,city, postalcode, amenities.size());
         if(price > 0){
-            System.out.println("Recommended price for such Listing per night: " + price);
-            helper_distance(lat,lon,city,price);
+            if(var){
+                System.out.println("Recommended price for such Listing per night: " + price);
+                helper_distance(lat,lon,city,price);
+            }
             return price;
         }
 
+        if(price == -1){
+            System.out.println("Not enough data to recommend price");
+        }
      return price;
 
     }
@@ -1314,8 +1317,9 @@ public class Main {
 
         }
         else{
-            System.out.println("We are unable to find a landmark close to your listing at the moment. We are updating the database steadily to improve this feature");
+            System.out.println("We are unable to find a landmark close to your listing at the moment.");
         }
+
     }
 
     public static String make_string(ArrayList<Amenity> amenities){
