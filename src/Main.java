@@ -1085,7 +1085,9 @@ public class Main {
             User u = user.get(num);
             System.out.println("Enter the rating for the HOST (1-5):");
             int rating = scanner.nextInt();
+
             System.out.println("Comment your opinions about the HOST:");
+            scanner.nextLine();
             String comment = scanner.nextLine();
             data.add_review(current_user.uid(), u.uid(), comment, rating);
             System.out.println("Your HOST is REVIEWED");
@@ -1096,6 +1098,7 @@ public class Main {
             System.out.println("Enter the rating for the GUEST (1-5):");
             int rating = scanner.nextInt();
             System.out.println("Comment your opinions about the GUEST:");
+            scanner.nextLine();
             String comment = scanner.nextLine();
             data.add_review(current_user.uid(), u.uid(), comment, rating);
             System.out.println("Your GUEST is REVIEWED");
@@ -1108,7 +1111,7 @@ public class Main {
         int index = 0;
         // Print each Listing in a table format
         for (User us : users) {
-            System.out.printf("%-5d %-5d %-10d %-10d %-10f %-15s %-10s %-10s %-10d %-15s %n", index++, us.name(), us.email(), us.occupation());
+            System.out.printf(" %-10d %-15s %-10s %-10s %n", index++, us.name(), us.email(), us.occupation());
         }
     }
 

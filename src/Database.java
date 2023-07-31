@@ -689,16 +689,16 @@ public class Database {
     }
 
     public void add_review(int UID, int UID2, String comment, int rating) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("INSERT INTO Review(Reviewer, Reviewee, Rating, Comment) VALUES (?,?,?,?), Statement.RETURN_GENERATED_KEYS");
+        PreparedStatement stmt = connection.prepareStatement("INSERT INTO Review(Reviewer, Reviewee, Rating, Comment) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         stmt.setInt(1,UID);
         stmt.setInt(2,UID2);
         stmt.setInt(3, rating);
         stmt.setString(4, comment);
-        stmt.executeQuery();
+        stmt.executeUpdate();
     }
 
     public ArrayList<User> get_guest(int UID) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("SELECT U.* FROM Reservation R, Listings L, Users U WHERE R.RID = L.RID AND R.UID = U.UID AND L.UID=? AND R.Availability='[PAST RESERVATION]'AND U.Account ='[ACTIVE]'");
+        PreparedStatement stmt = connection.prepareStatement("SELECT U.* FROM Reservation R, Listings L, Users U WHERE R.LID = L.LID AND R.UID = U.UID AND L.UID=? AND R.Availability='[PAST RESERVATION]'AND U.Account ='[ACTIVE]'");
         stmt.setInt(1, UID);
         ResultSet rs = stmt.executeQuery();
         ArrayList<User> hosts = new ArrayList<>();
