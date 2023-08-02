@@ -234,20 +234,6 @@ public class Database {
         stmt.executeUpdate();
     }
 
-    public int get_lid(String type, String street, String postalcode) throws SQLException {
-        int LID = 0;
-        PreparedStatement stmt = connection.prepareStatement("SELECT LID* FROM LISTINGS WHERE Type =? AND Street=? AND postalcode =?");
-        stmt.setString(1, type);
-        stmt.setString(2, street);
-        stmt.setString(3, postalcode);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            LID = rs.getInt("LID");
-        }
-
-        return LID;
-    }
-
     public int add_calendar(int lid, String start, String end, double price) throws SQLException {
         LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
         LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
@@ -309,8 +295,16 @@ public class Database {
             available.add(new Calendar(CID,lid,avail,price,date.toLocalDate()));
         }
         return available;
+    }
 
-
+    public boolean check_availability_reservation(int LID, LocalDate start, LocalDate end) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT LID FROM Calendar C WHERE Availability ='[OPEN]' AND LID = ? AND Date BETWEEN ? AND ? GROUP BY LID HAVING COUNT(*)=DATEDIFF(?, ?)+1");
+        stmt.setInt(1,  LID);
+        stmt.setDate(2, Date.valueOf(start));
+        stmt.setDate(3, Date.valueOf(end));
+        stmt.setDate(4, Date.valueOf(end));
+        stmt.setDate(5, Date.valueOf(start));
+        return stmt.executeQuery().next();
     }
 
     public boolean check_day_status(int lid, LocalDate date, String status) throws SQLException {
