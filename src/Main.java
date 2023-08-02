@@ -552,11 +552,16 @@ public class Main {
         if (num == 3) {
             Listing = search_by_address();
         }
+        if(Listing.size() == 0){
+            System.out.println("NO LISTINGS WERE FOUND :(");
+            return;
+        }
         System.out.println("Make a Reservation 1:Yes or 2:No");
         int num2 = scanner.nextInt();
-        if (num2 == 1) {
+        if (num2 == 1 && Listing.size() != 0) {
             Make_a_reservation(Listing);
         }
+
     }
 
     public static ArrayList<Listing> search_by_coords() throws SQLException {
@@ -577,14 +582,19 @@ public class Main {
             dist = dist * 1000;
 
         }
-        System.out.printf("%-5s %-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n","Index", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
+        System.out.printf("%-5s %-5s %-12s %-12s %-12s %-20s %-15s %-15s %-12s %-12s %-20s %n",
+                "Index", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
+
         ArrayList<Listing> coords = data.search_coords(latitude, longitude, dist);
-        // Print each Listing in a table format
+        int index = 0;
         for (Listing listing : coords) {
-            int index = 0;
             Address address = listing.address();
-            System.out.printf("%-5d %-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", index++,listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(), listing.distance());
+            System.out.printf("%-5d %-5d %-12s %-12f %-12f %-20s %-15s %-15s %-12s %-12s %-20.2f %n",
+                    index++, listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(),
+                    address.Street(), address.city(), address.Country(), address.postal_code(),
+                    listing.status(), listing.distance());
         }
+
         data.remove_view("Filter0");
         data.remove_view("Filter1");
         data.remove_view("Filter2");
@@ -660,13 +670,17 @@ public class Main {
             PreparedStatement s = data.get_queries("Filter3");
             listings = data.Listings_from_view(s);
 
-            System.out.printf("%-5s %-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n","Index", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
-            for (Listing listing : listings) {
-                int index=0;
+            System.out.printf("%-5s %-5s %-12s %-12s %-12s %-20s %-15s %-15s %-12s %-12s %-20s %n",
+                    "Index", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
+            int index2 = 0;
+            for (Listing listing : coords) {
                 Address address = listing.address();
-                double km = listing.distance() / 1000;
-                System.out.printf("%-5d %-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n",index++, listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(), km);
+                System.out.printf("%-5d %-5d %-12s %-12f %-12f %-20s %-15s %-15s %-12s %-12s %-20.2f %n",
+                        index2++, listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(),
+                        address.Street(), address.city(), address.Country(), address.postal_code(),
+                        listing.status(), listing.distance());
             }
+
             data.remove_view("Filter0");
             data.remove_view("Filter1");
             data.remove_view("Filter2");
@@ -951,6 +965,7 @@ public class Main {
         int LID = -1;
         if (num >= 0 && num < List.size()) {
             LID = List.get(num).LID();
+            //System.out.println(LID);
         }
         scanner.nextLine();
         System.out.println("Enter the Start date of your Reservation (YYYY-MM-DD):");
@@ -961,51 +976,90 @@ public class Main {
 
         LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
         LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
-        System.out.println("Here are the Availabilities:");
-        ArrayList<Calendar> availability = data.Availabilities(LID, startDate, endDate);
-        int size = availability.size();
-        System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
+        if(data.check_availability_reservation(LID, startDate, endDate)){
+            System.out.println("Would you like to make a reservation at this listing on the date range entered?(1:YES | 2:NO)");
 
-        // Print each Listing in a table format
-        for (Calendar calendar : availability) {
-            //System.out.printf("%-5d %-10s %-10f %-10f %-10s %n",calendar.CID(),calendar.LID(),calendar.availability(),calendar.Price(),calendar.date());
-            System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-
-        }
-        while (size == 0) {
-            System.out.println("No Availability for this range of dates");
-            System.out.println("Enter the new range of dates");
-            System.out.println("Enter the Start date (YYYY-MM-DD):");
-            String start2 = scanner.nextLine();
-
-            System.out.println("Enter the End date (YYYY-MM-DD):");
-            String end2 = scanner.nextLine();
-
-            LocalDate startDate2 = LocalDate.parse(start2, DateTimeFormatter.ISO_LOCAL_DATE);
-            LocalDate endDate2 = LocalDate.parse(end2, DateTimeFormatter.ISO_LOCAL_DATE);
-            System.out.println("Here are the Availabilities:");
-            ArrayList<Calendar> availability2 = data.Availabilities(LID, startDate2, endDate2);
-            System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
-            for (Calendar calendar : availability2) {
-                //System.out.printf("%-5d %-10s %-10f %-10f %-10s %n",calendar.CID(),calendar.LID(),calendar.availability(),calendar.Price(),calendar.date());
-                System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-
-            }
-            size = availability2.size();
-        }
-        System.out.println("Would you like to make a reservation at this listing on the date range entered?(1:YES | 2:NO)");
-
-        int num3 = scanner.nextInt();
-        if (num3 == 1) {
-            double total_cost = data.Total_price(startDate, endDate, LID);
-            System.out.println(total_cost);
-            data.Make_Reservation(current_user.uid(), LID, startDate, endDate, data.Total_price(startDate, endDate, LID));
-            LocalDate currentDate = startDate;
-            while (!currentDate.isAfter(endDate)) {
-                data.update_day_status(LID, currentDate, "[RESERVED]");
-                currentDate = currentDate.plusDays(1);
+            int num3 = scanner.nextInt();
+            if (num3 == 1) {
+                double total_cost = data.Total_price(startDate, endDate, LID);
+                //System.out.println(total_cost);
+                data.Make_Reservation(current_user.uid(), LID, startDate, endDate, data.Total_price(startDate, endDate, LID));
+                LocalDate currentDate = startDate;
+                while (!currentDate.isAfter(endDate)) {
+                    data.update_day_status(LID, currentDate, "[RESERVED]");
+                    currentDate = currentDate.plusDays(1);
+                }
+                System.out.println("Your Reservation was successful. Total cost: " + total_cost);
             }
         }
+        else{
+            boolean result = data.check_availability_reservation(LID, startDate, endDate);
+            LocalDate startDate2 = null;
+            LocalDate endDate2 = null;
+            while(result == false){
+                System.out.println("No Availability for this range of dates. Would you like to search for other dates? (1:YES | 2:EXIT)");
+                int ans = scanner.nextInt();
+
+                if(ans == 2){
+                    break;
+                }
+                System.out.println("Enter the new range of dates");
+                System.out.println("Enter the Start date (YYYY-MM-DD):");
+                scanner.nextLine();
+                String start2 = scanner.nextLine();
+
+                System.out.println("Enter the End date (YYYY-MM-DD):");
+                String end2 = scanner.nextLine();
+
+                startDate2 = LocalDate.parse(start2, DateTimeFormatter.ISO_LOCAL_DATE);
+                endDate2 = LocalDate.parse(end2, DateTimeFormatter.ISO_LOCAL_DATE);
+
+                result = data.check_availability_reservation(LID, startDate2, endDate2);
+            }
+            if(data.check_availability_reservation(LID, startDate2, endDate2)){
+                double total_cost = data.Total_price(startDate2, endDate2, LID);
+                data.Make_Reservation(current_user.uid(), LID, startDate2, endDate2, data.Total_price(startDate2, endDate2, LID));
+                LocalDate currentDate = startDate;
+                while (!currentDate.isAfter(endDate)) {
+                    data.update_day_status(LID, currentDate, "[RESERVED]");
+                    currentDate = currentDate.plusDays(1);
+                }
+                System.out.println("Your Reservation was successful. Total cost: " + total_cost);
+            }
+
+        }
+//        System.out.println("Here are the Availabilities:");
+//        ArrayList<Calendar> availability = data.Availabilities(LID, startDate, endDate);
+//        int size = availability.size();
+//        System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
+//
+//        // Print each Listing in a table format
+//        for (Calendar calendar : availability) {
+//            //System.out.printf("%-5d %-10s %-10f %-10f %-10s %n",calendar.CID(),calendar.LID(),calendar.availability(),calendar.Price(),calendar.date());
+//            System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+//
+//        }
+//        while (size == 0) {
+//            System.out.println("No Availability for this range of dates");
+//            System.out.println("Enter the new range of dates");
+//            System.out.println("Enter the Start date (YYYY-MM-DD):");
+//            String start2 = scanner.nextLine();
+//
+//            System.out.println("Enter the End date (YYYY-MM-DD):");
+//            String end2 = scanner.nextLine();
+//
+//            LocalDate startDate2 = LocalDate.parse(start2, DateTimeFormatter.ISO_LOCAL_DATE);
+//            LocalDate endDate2 = LocalDate.parse(end2, DateTimeFormatter.ISO_LOCAL_DATE);
+//            System.out.println("Here are the Availabilities:");
+//            ArrayList<Calendar> availability2 = data.Availabilities(LID, startDate2, endDate2);
+//            System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
+//            for (Calendar calendar : availability2) {
+//                //System.out.printf("%-5d %-10s %-10f %-10f %-10s %n",calendar.CID(),calendar.LID(),calendar.availability(),calendar.Price(),calendar.date());
+//                System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+//
+//            }
+//            size = availability2.size();
+//        }
     }
 
 
