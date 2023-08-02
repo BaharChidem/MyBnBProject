@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password = "Pilyar23$";
+    private static final String Password = "Bhr_1232003";
     public static User current_user = null;
     static Database data;
 
@@ -193,10 +193,9 @@ public class Main {
         System.out.println("Enter The Type of Listing");
         System.out.println("1:House");
         System.out.println("2:Apartment");
-        System.out.println("3:Cabin ");
-        System.out.println("4:GuestHouse");
-        System.out.println("5:Hotel");
-        System.out.println("6:Tiny home ");
+        System.out.println("3:GuestHouse");
+        System.out.println("4:Hotel");
+        System.out.println("5:Tiny home ");
         String type = scanner.nextLine();
         if (!(type.equalsIgnoreCase("House") || type.equalsIgnoreCase("Apartment") || type.equalsIgnoreCase("Cabin") || type.equalsIgnoreCase("GuestHouse") || type.equalsIgnoreCase("Hotel") || type.equalsIgnoreCase("Tiny home"))) {
             System.out.println("Not a Valid type");
