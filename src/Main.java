@@ -578,12 +578,13 @@ public class Main {
             dist = dist * 1000;
 
         }
-        System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
+        System.out.printf("%-5s %-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n","Index", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
         ArrayList<Listing> coords = data.search_coords(latitude, longitude, dist);
         // Print each Listing in a table format
         for (Listing listing : coords) {
+            int index = 0;
             Address address = listing.address();
-            System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(), listing.distance());
+            System.out.printf("%-5d %-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", index++,listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(), listing.distance());
         }
         data.remove_view("Filter0");
         data.remove_view("Filter1");
@@ -660,11 +661,12 @@ public class Main {
             PreparedStatement s = data.get_queries("Filter3");
             listings = data.Listings_from_view(s);
 
-            System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
+            System.out.printf("%-5s %-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n","Index", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
             for (Listing listing : listings) {
+                int index=0;
                 Address address = listing.address();
                 double km = listing.distance() / 1000;
-                System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n", listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(), km);
+                System.out.printf("%-5d %-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-10s %-15s %n",index++, listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status(), km);
             }
             data.remove_view("Filter0");
             data.remove_view("Filter1");
