@@ -1026,12 +1026,19 @@ public class Database {
     }
 
     public double listing_avg_price(String set, String type, String country, String city, int size) throws SQLException {
+//        PreparedStatement stmt = connection.prepareStatement("WITH Filter1 AS " +
+//                "(SELECT LID FROM Listings NATURAL JOIN Address WHERE Type = ? AND City =? AND Country = ?), " +
+//                "Filter2 AS (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ size +"), " +
+//                "temp AS (SELECT AVG(Price) AS Price FROM Calendar " +
+//                "WHERE LID IN (SELECT * FROM Filter1) AND LID IN (SELECT * FROM Filter2) " +
+//                "GROUP BY LID) SELECT AVG(Price) AS RESULT FROM temp");
         PreparedStatement stmt = connection.prepareStatement("WITH Filter1 AS " +
                 "(SELECT LID FROM Listings NATURAL JOIN Address WHERE Type = ? AND City =? AND Country = ?), " +
                 "Filter2 AS (SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID WHERE Amenity_Name IN "+ set +" GROUP BY Listings.LID HAVING COUNT(*) >= "+ size +"), " +
                 "temp AS (SELECT AVG(Price) AS Price FROM Calendar " +
-                "WHERE LID IN (SELECT * FROM Filter1) AND LID IN (SELECT * FROM Filter2) " +
+                "WHERE LID IN (SELECT LID FROM Filter1) AND LID IN (SELECT LID FROM Filter2) " +
                 "GROUP BY LID) SELECT AVG(Price) AS RESULT FROM temp");
+
         stmt.setString(1, type);
         stmt.setString(2, country);
         stmt.setString(3, city);

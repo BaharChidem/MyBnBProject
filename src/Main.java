@@ -458,9 +458,10 @@ public class Main {
 
     public static void display_host_lisitings() throws SQLException {
         ArrayList<Listing> host_listing = data.get_host_Listing(current_user.uid());
-        for (int i = 0; i < host_listing.size(); i++) {
-            System.out.println(i + ":" + host_listing.get(i));
-        }
+//        for (int i = 0; i < host_listing.size(); i++) {
+//            System.out.println(i + ":" + host_listing.get(i));
+//        }
+        print_table(host_listing);
 
     }
 
