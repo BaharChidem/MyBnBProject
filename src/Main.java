@@ -162,7 +162,6 @@ public class Main {
         }
         if (num == 3) {
             handle_reservations();
-
         }
         if (num == 4) {
             review_guest();
@@ -966,7 +965,14 @@ public class Main {
         int LID = -1;
         if (num >= 0 && num < List.size()) {
             LID = List.get(num).LID();
-            //System.out.println(LID);
+        }
+        scanner.nextLine();
+        System.out.println("Would you like to see Available dates? (1:YES or 2:NO)");
+        int see = scanner.nextInt();
+        while(see == 1){
+            availabilities(LID);
+            System.out.println("Would you like to see more Available dates? (1:YES or 2:NO)");
+            see = scanner.nextInt();
         }
         scanner.nextLine();
         System.out.println("Enter the Start date of your Reservation (YYYY-MM-DD):");
@@ -1061,6 +1067,30 @@ public class Main {
 //            }
 //            size = availability2.size();
 //        }
+    }
+
+    public static void availabilities(int LID) throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the Start date (YYYY-MM-DD):");
+        String start = scanner.nextLine();
+
+        System.out.println("Enter the End date (YYYY-MM-DD):");
+        String end = scanner.nextLine();
+
+        LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ISO_LOCAL_DATE);
+        System.out.println("Here are the Availabilities:");
+        ArrayList<Calendar> availability = data.Availabilities(LID, startDate, endDate);
+        int size = availability.size();
+        System.out.printf("%-5s %-10s %-10s %-10s %-10s %n", "CID", "LID", "Availability", "Price", "Date");
+
+        // Print each Listing in a table format
+        for (Calendar calendar : availability) {
+            //System.out.printf("%-5d %-10s %-10f %-10f %-10s %n",calendar.CID(),calendar.LID(),calendar.availability(),calendar.Price(),calendar.date());
+            System.out.printf("%-5d %-10s %-10s %-10f %-10s %n", calendar.CID(), calendar.LID(), calendar.availability(), calendar.Price(), calendar.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+        }
+
     }
 
 
@@ -1330,7 +1360,15 @@ public class Main {
             attraction = "Vancouver Art Gallery";
 
         }
+        if (city.equals("Los Angeles")) {// Beverly Hills
+            latitude = 34.0696;
+            longitude = -118.4053;
+            attraction = "Beverly Hills";
+
+        }
         if (city.equals("San Francisco")) { // Marina District
+            latitude = 37.8025;
+            longitude =  -122.4376;
             attraction = "Marina District";
         }
         double distance = data.avg_dist_from_attraction(latitude, longitude, lat, lon);
