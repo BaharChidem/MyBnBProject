@@ -166,9 +166,9 @@ public class Main {
         if (num == 4) {
             review_guest();
         }
-        if (num == 5) {
-            data.deactivate_host(user.uid());
-        }
+//        if (num == 5) {
+//            data.deactivate_host(user.uid());
+//        }
 
     }
 
@@ -890,24 +890,21 @@ public class Main {
         System.out.println("Here are the set amenities to search from ");
         System.out.println("1.Type of place: Entire Place , Shared Room , Room ");
         System.out.println("2.Essentials : Wifi,TV,Kitchen,Washer,Free parking, Air conditioning, Dedicated workspace");
-        System.out.println("3.Standout : Pool,Hot tub, Beach Access, Gym, Public transport access");
-        System.out.println("4.Safety: Smoke alarm, First aid kit, Fire extinguisher, CO alarm");
+        System.out.println("3. Standout : Pool,Hot tub, Outdoor Dining area ,Beach Access, Lakes access, Gym,Prime locations, Public transport access");
+        System.out.println("4. Safety: Smoke alarm, First aid kit, Fire extinguisher, CO alarm");
     }
 
     public static void print_table(ArrayList<Listing> List) {
-        System.out.printf("%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-15s %n", "Index", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status");
+        System.out.printf("%-5s %-15s %-10s %-10s %-20s %-15s %-15s %-15s %-15s %n", "Index", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status");
         int index = 0;
-        // Print each Listing in a table format
         for (Listing listing : List) {
             Address address = listing.address();
-            System.out.printf("%-5d %-10s %-10f %-10f %-10s %-10s %-10s %-10s %-15s %n", index++, listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status());
+            System.out.printf("%-5d %-15s %-10f %-10f %-20s %-15s %-15s %-15s %-15s %n", index++, listing.type(), listing.Latitude(), listing.Longitude(), address.Street(), address.city(), address.Country(), address.postal_code(), listing.status());
         }
-
-
     }
 
-    public static void print_reservation(ArrayList<Reservation> reservations) {
-        System.out.printf("%-5s %-10s %-10s %-10s %-10s %-15s %-10s %-10s %-10s %-15s %n","Index", "RID", "UID", "LID", "Price", "Availability", "start_date", "end_date", "Rating", "Comment");
+    public static void print_reservation(ArrayList<Reservation> reservations) throws SQLException {
+        System.out.printf("%-5s %-10s %-10s %-10s %-10s %-15s %-10s %-10s %-10s %-15s %n","Index", "RID", "Guest", "LID", "Price", "Availability", "start_date", "end_date", "Rating", "Comment");
         int index = 0;
         // Print each Listing in a table format
         for (Reservation rs : reservations) {
@@ -1446,9 +1443,16 @@ public class Main {
                     displayHostMenu();
                     System.out.print("Enter your choice: ");
                     int host_num = scanner.nextInt();
+
                     if (host_num == 6) {
                         Logged_into_bnb = false;
                         System.out.println("Logged out successfully!");
+                        continue;
+                    }
+                    if(host_num == 5){
+                        data.deactivate_host(current_user.uid());
+                        Logged_into_bnb = false;
+                        System.out.println("Your account deleted successfully.");
                         continue;
                     }
                     Host_options(host_num, current_user);
