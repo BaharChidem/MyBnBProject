@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password = "Pilyar23$";
+    private static final String Password = "Bhr_1232003";
     public static User current_user = null;
     static Database data;
 
@@ -271,15 +271,15 @@ public class Main {
             System.out.println(suggested_amenities.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
             rev_increase = rev_increase - 0.5;
         }
-        rev_increase = 3.0;
-        System.out.println();
-        System.out.println("Non-Trending Essentials:");
-        for (int i = 0; i < unpopular.size(); i++) {
-            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
-            double result = rev_increase + percentage;
-            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
-            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
-        }
+//        rev_increase = 3.0;
+//        System.out.println();
+//        System.out.println("Non-Trending Essentials:");
+//        for (int i = 0; i < unpopular.size(); i++) {
+//            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
+//            double result = rev_increase + percentage;
+//            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
+//            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
+//        }
         System.out.println("--------------------------");
         System.out.println("2: Safety:");
         rev_increase = 3.0;
@@ -294,15 +294,15 @@ public class Main {
             System.out.println(suggested_amenities.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
             rev_increase = rev_increase - 0.5;
         }
-        rev_increase = 4.0;
-        System.out.println();
-        System.out.println("Other Safety Amenities:");
-        for (int i = 0; i < unpopular.size(); i++) {
-            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
-            double result = rev_increase + percentage;
-            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
-            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
-        }
+//        rev_increase = 4.0;
+//        System.out.println();
+//        System.out.println("Other Safety Amenities:");
+//        for (int i = 0; i < unpopular.size(); i++) {
+//            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
+//            double result = rev_increase + percentage;
+//            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
+//            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
+//        }
         System.out.println("--------------------------");
         System.out.println("3: Standout:");
         rev_increase = 5.0;
@@ -311,23 +311,29 @@ public class Main {
         unpopular = data.offer_unpopular(set, standout, "Standout");
         System.out.println("Trending Standouts:");
         for (int i = 0; i < suggested_amenities.size(); i++) {
-            double percentage = data.find_revenue(suggested_amenities.get(i).Amenity_Name());
+            double avg1 = data.findAvgPrice_listingHasAmenity(suggested_amenities.get(i).Amenity_Name(), type, country, city);
+            double avg2 = data.findAvgPrice_listingNoAmenity(suggested_amenities.get(i).Amenity_Name(), type, country, city);
+            double diff = avg1 - avg2;
+            double percentage = (diff / avg2) * 100;
             double result = rev_increase + percentage;
-            revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(), result);
-            System.out.println(suggested_amenities.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
+            if(avg1 > 0){
+                System.out.println();
+                revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(), result);
+                System.out.println("The Listings have "+ suggested_amenities.get(i).Amenity_Name() + " the average price per night " + avg1);
+                System.out.println("The Listings does not have "+ suggested_amenities.get(i).Amenity_Name() + " the average price per night " + avg2);
+                System.out.println(suggested_amenities.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
+            }
             rev_increase = rev_increase - 0.5;
         }
-        rev_increase = 0.1;
-        System.out.println();
-        System.out.println("Cool Standouts:");
-        for (int i = 0; i < unpopular.size(); i++) {
-            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
-            double result = rev_increase + percentage;
-            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
-            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
-        }
-
-
+//        rev_increase = 0.1;
+//        System.out.println();
+//        System.out.println("Cool Standouts:");
+//        for (int i = 0; i < unpopular.size(); i++) {
+//            double percentage = data.find_revenue(unpopular.get(i).Amenity_Name());
+//            double result = rev_increase + percentage;
+//            revenueIncreaseMap.put(unpopular.get(i).Amenity_Name(), result);
+//            System.out.println(unpopular.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
+//        }
         return revenueIncreaseMap;
     }
 
@@ -372,39 +378,28 @@ public class Main {
         boolean typeOfPlaceSelected = false;
 
         while (true) {
-            System.out.println(typeOfPlaceSelected ? "1: Type of Place (already selected)" : "1: Type of Place (Must be entered in order to quit)");
-            System.out.println("2: Essentials");
-            System.out.println("3: Standout");
-            System.out.println("4: Safety");
-            System.out.println("5: Exit");
+            //System.out.println(typeOfPlaceSelected ? "1: Type of Place (already selected)" : "1: Type of Place (Must be entered in order to quit)");
+            System.out.println(typeOfPlaceSelected ? "1: Essentials" : "1: Essentials (Must be entered in order to quit)");
+            System.out.println("2: Standout");
+            System.out.println("3: Safety");
+            System.out.println("4: Exit");
             int num = scanner.nextInt();
             scanner.nextLine();
 
-            if (num == 5 && !typeOfPlaceSelected) {
-                System.out.println("You must select the 'Type of Place' before exiting.");
+            if (num == 4 && !typeOfPlaceSelected) {
+                System.out.println("You must select the 'Essentials' before exiting.");
                 continue; // Continue to next iteration, forcing user to make a selection
             }
 
-            if (num == 5 && typeOfPlaceSelected) {
+            if (num == 4 && typeOfPlaceSelected) {
                 break; // Exit if "Type of Place" has been selected
             }
 
-            if (num == 1 && !typeOfPlaceSelected) {
-                amenities = data.find_amenities(1);
-                for (int i = 0; i < amenities.size(); i++) {
-                    System.out.println(i + 1 + " : " + amenities.get(i));
-                }
-                String ans = scanner.nextLine();
-                if (amenities.contains(ans)) {
-                    amenities.remove(ans);
-                    int id = data.find_amenityID(num, ans);
-                    data.add_amenity(lid, id);
-                }
-                typeOfPlaceSelected = true;
-            }
-
-            if (num >= 2 && num <= 4) {
+            if (num >= 1 && num <= 3) {
                 amenities = data.find_amenities(num);
+                if (num == 1) {
+                    typeOfPlaceSelected = true;
+                }
                 while (true) {
                     System.out.println("Amenities under this category: (Quit - 0)");
                     for (int i = 0; i < amenities.size(); i++) {
@@ -414,12 +409,30 @@ public class Main {
                     if (ans.equals("0")) {
                         break;
                     }
-                    if (amenities.contains(ans)) {
-                        amenities.remove(ans);
+                    int index = amenities.indexOf(ans); // Get index of the amenity
+                    if (index != -1) { // If amenity is found
                         int id = data.find_amenityID(num, ans);
                         data.add_amenity(lid, id);
+                        amenities.remove(index); // Remove the selected amenity
+                    } else {
+                        System.out.println("Invalid selection, please try again.");
                     }
                 }
+//                while (true) {
+//                    System.out.println("Amenities under this category: (Quit - 0)");
+//                    for (int i = 0; i < amenities.size(); i++) {
+//                        System.out.println(i + 1 + " : " + amenities.get(i));
+//                    }
+//                    String ans = scanner.nextLine();
+//                    if (ans.equals("0")) {
+//                        break;
+//                    }
+//                    if (amenities.contains(ans)) {
+//                        amenities.remove(ans);
+//                        int id = data.find_amenityID(num, ans);
+//                        data.add_amenity(lid, id);
+//                    }
+//                }
             }
         }
 
@@ -888,10 +901,9 @@ public class Main {
 
     public static void set_of_amenities() {
         System.out.println("Here are the set amenities to search from ");
-        System.out.println("1.Type of place: Entire Place , Shared Room , Room ");
-        System.out.println("2.Essentials : Wifi,TV,Kitchen,Washer,Free parking, Air conditioning, Dedicated workspace");
-        System.out.println("3. Standout : Pool,Hot tub, Outdoor Dining area ,Beach Access, Lakes access, Gym,Prime locations, Public transport access");
-        System.out.println("4. Safety: Smoke alarm, First aid kit, Fire extinguisher, CO alarm");
+        System.out.println("1.Essentials : Wifi,TV,Kitchen,Washer,Free parking, Air conditioning, Dedicated workspace");
+        System.out.println("2. Standout : Pool,Hot tub, Outdoor Dining area ,Beach Access, Lakes access, Gym,Prime locations, Public transport access");
+        System.out.println("3. Safety: Smoke alarm, First aid kit, Fire extinguisher, CO alarm");
     }
 
     public static void print_table(ArrayList<Listing> List) {

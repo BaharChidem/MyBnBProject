@@ -1149,7 +1149,7 @@ public ArrayList<Amenity> offer_essentials(String user_amenities, String City, S
                 "(SELECT COUNT(*) FROM LISTINGS NATURAL JOIN ADDRESS WHERE Type =? AND City =? AND Country=?) as Prop FROM AmenitiesListing " +
                 "NATURAL JOIN Amenities NATURAL JOIN Category WHERE Category_Name=? " +
                 "AND Amenity_Name NOT IN " + user_amenities +
-                " GROUP BY Amenity_Name,Category_ID,Amenities_ID ORDER BY Prop DESC LIMIT 5");
+                " GROUP BY Amenity_Name,Category_ID,Amenities_ID ORDER BY Prop DESC LIMIT 10");
         stmt.setString(1,type);
         stmt.setString(2,City);
         stmt.setString(3,Country);
@@ -1190,6 +1190,50 @@ public ArrayList<Amenity> offer_essentials(String user_amenities, String City, S
         }
         return percentage;
     }
+
+    public double findAvgPrice_listingHasAmenity(String name, String type, String country, String city) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT AVG(Price) AS AveragePrice "
+                + "FROM Listings "
+                + "JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID "
+                + "JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID "
+                + "JOIN Calendar ON Listings.LID = Calendar.LID "
+                + "JOIN Address ON Listings.AID = Address.AID "
+                + "WHERE Amenities.Amenity_Name = ? AND Type = ? AND City = ? AND Country = ?");
+        stmt.setString(1, name);
+        stmt.setString(2,type);
+        stmt.setString(3, city);
+        stmt.setString(4,country);
+        ResultSet rs = stmt.executeQuery();
+        double price = 0;
+        if(rs.next()){
+            price = rs.getDouble("AveragePrice");
+        }
+        return price;
+    }
+
+    public double findAvgPrice_listingNoAmenity(String name, String type, String country, String city) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT AVG(Price) AS AveragePrice "
+                + "FROM Listings "
+                + "JOIN Calendar ON Listings.LID = Calendar.LID "
+                + "JOIN Address ON Listings.AID = Address.AID "
+                + "WHERE Listings.LID NOT IN ("
+                + "  SELECT AmenitiesListing.LID FROM AmenitiesListing "
+                + "  JOIN Amenities ON AmenitiesListing.Amenities_ID = Amenities.Amenities_ID "
+                + "  WHERE Amenities.Amenity_Name = ?"
+                + ") AND Type = ? AND City = ? AND Country = ?");
+        stmt.setString(1, name);
+        stmt.setString(2,type);
+        stmt.setString(3, city);
+        stmt.setString(4,country);
+        ResultSet rs = stmt.executeQuery();
+        double price = 0;
+        if(rs.next()){
+            price = rs.getDouble("AveragePrice");
+        }
+        return price;
+    }
+
+
 
     public int find_num_reservations(String type, String country, String city) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement("SELECT AVG(TotalReservation) AS AvgReservation FROM (SELECT L.LID, COUNT(*) AS TotalReservation FROM Reservation R, Listings L, Address A WHERE L.LID = R.LID AND A.AID=L.AID AND R.Availability != '[CANCELED]' AND A.City=? AND A.Country=? AND L.Type =? GROUP BY L.LID) AS SubQuery");
