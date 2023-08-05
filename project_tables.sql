@@ -63,6 +63,7 @@ CREATE TABLE Reservation (
     Availability VARCHAR(255),
     StartDate DATE,
     EndDate DATE,
+    CanceledBy VARCHAR(255),
     Rating INT,
     Comment TEXT
 );
@@ -92,6 +93,14 @@ CREATE TABLE Revenue (
     Revenue_ID INT AUTO_INCREMENT PRIMARY KEY,
     Amenity_Name VARCHAR(255),
     Percentage DOUBLE
+);
+
+CREATE TABLE Reviews (
+    CID INT AUTO_INCREMENT PRIMARY KEY,
+    Reviewer INT,
+    Reviewee INT,
+    Rating INT,
+    Comment VARCHAR(255)
 );
 
 
