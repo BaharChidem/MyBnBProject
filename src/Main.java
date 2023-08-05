@@ -182,9 +182,9 @@ public class Main {
         if (num == 3) {
             review_reservations();
         }
-        if (num == 4) {
-            data.deactivate_guest(user.uid());
-        }
+//        if (num == 4) {
+//            data.deactivate_guest(user.uid());
+//        }
     }
 
     public static void create_listings() throws SQLException {
@@ -889,8 +889,8 @@ public class Main {
         System.out.println("Here are the set amenities to search from ");
         System.out.println("1.Type of place: Entire Place , Shared Room , Room ");
         System.out.println("2.Essentials : Wifi,TV,Kitchen,Washer,Free parking, Air conditioning, Dedicated workspace");
-        System.out.println("3. Standout : Pool,Hot tub, Outdoor Dining area ,Beach Access, Lakes access, Gym,Prime locations, Public transport access");
-        System.out.println("4. Safety: Smoke alarm, First aid kit, Fire extinguisher, CO alarm");
+        System.out.println("3.Standout : Pool,Hot tub, Beach Access, Gym, Public transport access");
+        System.out.println("4.Safety: Smoke alarm, First aid kit, Fire extinguisher, CO alarm");
     }
 
     public static void print_table(ArrayList<Listing> List) {
@@ -927,7 +927,7 @@ public class Main {
                 System.out.println("Do you want to CANCEL any reservation? (1:YES | 2:NO)");
                 int ans = scanner.nextInt();
                 if (ans == 1) {
-                    cancel_reservation(reservations);
+                    cancel_reservation(reservations, "[GUEST]");
                 }
             } else if (num == 2) {
                 ArrayList<Reservation> past = data.Guest_past(current_user.uid());
@@ -943,7 +943,7 @@ public class Main {
                 System.out.println("Do you want to CANCEL any reservation? (1:YES | 2:NO)");
                 int ans = scanner.nextInt();
                 if (ans == 1) {
-                    cancel_reservation(reservations);
+                    cancel_reservation(reservations, "[HOST]");
                 }
             } else if (num == 2) {
                 ArrayList<Reservation> past = data.host_past(current_user.uid());
@@ -1093,7 +1093,7 @@ public class Main {
     }
 
 
-    public static void cancel_reservation(ArrayList<Reservation> reservations) throws SQLException {
+    public static void cancel_reservation(ArrayList<Reservation> reservations, String user) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the Index Value next to the Reservation that you want to CANCEL");
         int num = scanner.nextInt();
@@ -1103,13 +1103,12 @@ public class Main {
         scanner.nextLine();
         Reservation rs = reservations.get(num);
         LocalDate currentDate = rs.start();
-        System.out.println(rs.start());
         LocalDate endDate = rs.end();
         while (!currentDate.isAfter(endDate)) {
             data.update_day_status(rs.LID(), currentDate, "[OPEN]");
             currentDate = currentDate.plusDays(1);
         }
-        data.cancel_reservation_status(rs.RID());
+        data.cancel_reservation_status(rs.RID(), user);
 
         System.out.println("Your Reservation is CANCELED");
     }
@@ -1306,12 +1305,21 @@ public class Main {
     public static double recommend_price(int lid, String type, String city, String country, String postalcode, double lat, double lon, boolean var) throws SQLException {
         ArrayList<Amenity> amenities = data.listing_amenities(lid);
         String set = make_string(amenities);
+        int size = amenities.size();
         double price = 0;
+        price = data.listing_avg_price(set, type, country, city, postalcode, amenities.size());
+        if (price > 0) {
+            if (var) {
+                System.out.println("Recommended price for such Listing per night: " + price);
+                helper_distance(lat, lon, city, price, set, size);
+            }
+            return price;
+        }
         price = data.listing_avg_price(set, type, country, city, amenities.size());
         if (price > 0) {
             if (var) {
                 System.out.println("Recommended price for such Listing per night: " + price);
-                helper_distance(lat, lon, city, price);
+                helper_distance(lat, lon, city, price, set, size);
             }
             return price;
         }
@@ -1319,27 +1327,18 @@ public class Main {
         if (price > 0) {
             if (var) {
                 System.out.println("Recommended price for such Listing per night: " + price);
-                helper_distance(lat, lon, city, price);
+                helper_distance(lat, lon, city, price, set, size);
             }
             return price;
         }
-        price = data.listing_avg_price(set, type, country, city, postalcode, amenities.size());
-        if (price > 0) {
-            if (var) {
-                System.out.println("Recommended price for such Listing per night: " + price);
-                helper_distance(lat, lon, city, price);
-            }
-            return price;
-        }
-
-        if (price == -1) {
+        if (price == 0) {
             System.out.println("Not enough data to recommend price");
         }
         return price;
 
     }
 
-    public static void helper_distance(double lat, double lon, String city, double price) throws SQLException {
+    public static void helper_distance(double lat, double lon, String city, double price, String set, int size) throws SQLException {
         double latitude = 0;
         double longitude = 0;
         String attraction = "";
@@ -1374,11 +1373,19 @@ public class Main {
         double km = distance / 1000;
         if (km <= 5) {
             System.out.println("Your Listing is within 5 km to " + attraction);
-            System.out.println("Your new recommended price per night: " + (price + 80.00));
+            double price2 = data.recommend_price(latitude, longitude, 5000, 0, size, set);
+            if(price2>= price){
+                price = price2;
+            }
+            System.out.println("Your new recommended price per night: " + price);
 
         } else if (km > 5 && km <= 15) {
             System.out.println("Your Listing is within (5-15 km) to " + attraction);
-            System.out.println("Your new recommended price per night: " + (price + 50.00));
+            double price2 = data.recommend_price(latitude, longitude, 15000, 5000, size, set);
+            if(price2>= price){
+                price = price2;
+            }
+            System.out.println("Your new recommended price per night: " + price);
 
         } else {
             System.out.println("We are unable to find a landmark close to your listing at the moment.");
@@ -1454,9 +1461,13 @@ public class Main {
                         System.out.println("Logged out successfully!");
                         continue;
                     }
+                    if(guest_num == 4){
+                        data.deactivate_guest(current_user.uid());
+                        Logged_into_bnb = false;
+                        System.out.println("Your account deleted successfully.");
+                        continue;
+                    }
                     Guest_options(guest_num, current_user);
-
-
                 }
             }
         }
