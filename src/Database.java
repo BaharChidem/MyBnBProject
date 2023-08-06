@@ -857,9 +857,8 @@ public class Database {
     }
 
     public void report_case11(int year) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("SELECT Name, COUNT(*) TotalCancellations FROM Reservation R JOIN Users U ON R.UID=U.UID WHERE R.Availability = '[CANCELED]' AND R.CanceledBy = '[GUEST]' AND YEAR(R.StartDate) = ? GROUP BY U.UID HAVING TotalCancellations = (SELECT MAX(TotalCancellations) FROM (SELECT COUNT(*) TotalCancellations FROM Reservation R JOIN Users U ON U.UID=R.UID WHERE R.Availability = '[CANCELED]' AND R.CanceledBy = '[GUEST]' AND YEAR(R.StartDate) = ? GROUP BY U.UID) AS MaxCancellations) ORDER BY TotalCancellations DESC");
+        PreparedStatement stmt = connection.prepareStatement("SELECT Name, COUNT(*) TotalCancellations FROM Reservation R JOIN Users U ON R.UID=U.UID WHERE R.Availability = '[CANCELED]' AND R.CanceledBy = '[GUEST]' AND YEAR(R.StartDate) = ? GROUP BY U.UID ORDER BY TotalCancellations DESC LIMIT 5");
         stmt.setInt(1,year);
-        stmt.setInt(2,year);
         ResultSet rs = stmt.executeQuery();
         System.out.println("----------------------------");
         System.out.println("Guests:");
@@ -868,9 +867,8 @@ public class Database {
             int num = rs.getInt("TotalCancellations");
             System.out.println(name + " : " + num);
         }
-        PreparedStatement stmt2 = connection.prepareStatement("SELECT Name, COUNT(*) TotalCancellations FROM Reservation R JOIN Listings L ON R.LID=L.LID JOIN Users U ON U.UID=L.UID WHERE R.Availability = '[CANCELED]' AND R.CanceledBy = '[HOST]' AND YEAR(R.StartDate) = ? GROUP BY U.UID HAVING TotalCancellations = (SELECT MAX(TotalCancellations) FROM (SELECT COUNT(*) TotalCancellations FROM Reservation R JOIN Listings L ON R.LID=L.LID JOIN Users U ON U.UID=L.UID WHERE R.Availability = '[CANCELED]' AND R.CanceledBy = '[HOST]'  AND YEAR(R.StartDate) = ? GROUP BY U.UID) AS MaxCancellations) ORDER BY TotalCancellations DESC");
+        PreparedStatement stmt2 = connection.prepareStatement("SELECT Name, COUNT(*) TotalCancellations FROM Reservation R JOIN Listings L ON R.LID=L.LID JOIN Users U ON U.UID=L.UID WHERE R.Availability = '[CANCELED]' AND R.CanceledBy = '[HOST]' AND YEAR(R.StartDate) = ? GROUP BY U.UID ORDER BY TotalCancellations DESC LIMIT 5");
         stmt2.setInt(1,year);
-        stmt2.setInt(2,year);
         ResultSet rs2 = stmt2.executeQuery();
         System.out.println("----------------------------");
         System.out.println("Hosts:");
