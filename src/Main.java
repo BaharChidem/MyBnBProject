@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password = "Bhr_1232003";
+    private static final String Password = "Pilyar23$";
     public static User current_user = null;
     static Database data;
 
