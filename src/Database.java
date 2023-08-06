@@ -842,7 +842,7 @@ public class Database {
     }
 
     public void report_case10(LocalDate start, LocalDate end) throws SQLException{
-        PreparedStatement stmt = connection.prepareStatement("SELECT Name, A.City, COUNT(*) AS TotalReservations FROM Reservation R JOIN Users U ON R.UID=U.UID JOIN Listings L ON R.LID=L.LID JOIN Address A ON A.AID=L.LID WHERE R.StartDate >= ? AND R.EndDate <=? AND R.Availability != '[CANCELED]' GROUP BY R.UID, U.Name, A.City HAVING TotalReservations >= 2 ORDER BY A.City, TotalReservations DESC");
+        PreparedStatement stmt = connection.prepareStatement("SELECT Name, A.City, COUNT(*) AS TotalReservations FROM Reservation R JOIN Users U ON R.UID=U.UID JOIN Listings L ON R.LID=L.LID JOIN Address A ON A.AID=L.AID WHERE R.StartDate >= ? AND R.EndDate <=? AND R.Availability != '[CANCELED]' GROUP BY R.UID, U.Name, A.City HAVING TotalReservations >= 2 ORDER BY A.City, TotalReservations DESC");
         stmt.setDate(1, Date.valueOf(start));
         stmt.setDate(2, Date.valueOf(end));
         ResultSet rs = stmt.executeQuery();

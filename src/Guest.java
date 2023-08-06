@@ -28,8 +28,8 @@ public class Guest extends User {
         if (payment_info.isEmpty()){
               throw new IllegalArgumentException();
         }
-        int AID= data.add_address(city.toLowerCase().trim(),Country.toLowerCase().trim(),postalcode.toLowerCase().trim(),street.toLowerCase().trim());
-        int UID = data.add_user(SIN.toLowerCase().trim(), name.toLowerCase().trim(), DoB.toLowerCase().trim(), occupation.toLowerCase().trim(),AID,email.toLowerCase().trim(), password.toLowerCase().trim());
+        int AID= data.add_address(city.trim(),Country.trim(),postalcode.trim(),street.trim());
+        int UID = data.add_user(SIN.toLowerCase().trim(), name.trim(), DoB.toLowerCase().trim(), occupation.trim(),AID,email.toLowerCase().trim(), password.toLowerCase().trim());
         data.add_guest(UID, payment_info);
 
     }
