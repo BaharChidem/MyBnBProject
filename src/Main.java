@@ -319,8 +319,8 @@ public class Main {
             if(avg1 > 0){
                 System.out.println();
                 revenueIncreaseMap.put(suggested_amenities.get(i).Amenity_Name(), result);
-                System.out.println("The Listings have "+ suggested_amenities.get(i).Amenity_Name() + " the average price per night " + avg1);
-                System.out.println("The Listings does not have "+ suggested_amenities.get(i).Amenity_Name() + " the average price per night " + avg2);
+                System.out.println("The Listings with a "+ suggested_amenities.get(i).Amenity_Name() + " the average price per night " + avg1);
+                System.out.println("The Listings without a "+ suggested_amenities.get(i).Amenity_Name() + " the average price per night " + avg2);
                 System.out.println(suggested_amenities.get(i).Amenity_Name() + ": (Revenue Increase by : " + percentage + " + " + rev_increase + " = " + result + " % per night)");
             }
             rev_increase = rev_increase - 0.5;
@@ -1485,6 +1485,7 @@ public class Main {
                         break;
                     case 4:
                         System.out.println("Exiting MyBnB. Thank you!");
+                        data.close_connection();
                         return;
                 }
             }

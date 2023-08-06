@@ -1248,6 +1248,10 @@ public ArrayList<Amenity> offer_essentials(String user_amenities, String City, S
         return num;
     }
 
+    public void close_connection() throws SQLException {
+        connection.close();
+    }
+
 
 
 }
