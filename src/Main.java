@@ -19,7 +19,7 @@ public class Main {
     private static final String dbClassName = "com.mysql.cj.jdbc.Driver";
 
     private static final String User = "root";
-    private static final String Password = "Pilyar23$";
+    private static final String Password = "Bhr_1232003";
     public static User current_user = null;
     static Database data;
 
@@ -260,7 +260,6 @@ public class Main {
         System.out.println("1: Essentials:");
         suggested_amenities = data.offer_essentials(set, city, country, type, "Essentials");
         String essentials = make_string(suggested_amenities);
-        System.out.println(essentials);
         unpopular = data.offer_unpopular(set, essentials, "Essentials");
         double rev_increase = 5.0;
         System.out.println("Trending Essentials:");
@@ -365,7 +364,7 @@ public class Main {
         if (num == 0) {
             System.out.println("There is no enough data to calculate expected revenue based on reservation");
         } else {
-            System.out.println("The average number of Reservation for such Listing is : " + num);
+            System.out.println("The average number of Reservation for such Listing is : " + num + " day(s)");
             System.out.println("The expected revenue for the Listing based on the Reservation data : " + (finalPrice * num));
         }
         System.out.println("*********************************************************************************************");
@@ -1327,7 +1326,7 @@ public class Main {
             for (int i = 0; i < num; i++) {
                 rs.next();
                 String comment = rs.getString("Comment");
-                String[] sentence = comment.toLowerCase().split("[.!?]");
+                String[] sentence = comment.toLowerCase().split("[;,.!?]");
                 for (String sentences : sentence) {
                     Parse[] parse = ParserTool.parseLine(sentences, parser, 1);
                     for (Parse p : parse) {

@@ -94,8 +94,8 @@ CREATE TABLE Revenue (
     Amenity_Name VARCHAR(255),
     Percentage DOUBLE
 );
-
-CREATE TABLE Reviews (
+DROP TABLE IF EXISTS Review;
+CREATE TABLE Review (
     CID INT AUTO_INCREMENT PRIMARY KEY,
     Reviewer INT,
     Reviewee INT,
