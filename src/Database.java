@@ -424,7 +424,7 @@ public class Database {
     }
 
     public ArrayList<Listing> search_coords(double latitude, double longitude, double distance) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement( "SELECT L.*, A.*, ST_Distance_Sphere(point(Longitude,Latitude), point("+longitude+", "+latitude+")) as Distance FROM Listings L JOIN Address A ON L.AID=A.AID HAVING Distance <"+distance+" ORDER BY Distance ASC ");
+        PreparedStatement stmt = connection.prepareStatement( "SELECT L.*, A.*, ST_Distance_Sphere(point(Longitude,Latitude), point("+longitude+", "+latitude+")) as Distance FROM Listings L JOIN Address A ON L.AID=A.AID HAVING Distance <="+distance+" ORDER BY Distance ASC ");
         ResultSet rs = stmt.executeQuery();
         ArrayList<Listing>coords=new ArrayList<>();
 
@@ -1116,7 +1116,7 @@ public double recommend_price(double latitude, double longitude, int dist1, int 
             "WITH Filter1 AS (" +
                     "SELECT L.LID, ST_Distance_Sphere(point(Longitude, Latitude), point(?, ?)) as Distance " +
                     "FROM Listings L JOIN Address A ON L.AID=A.AID " +
-                    "HAVING Distance < ? AND Distance > ? " +
+                    "HAVING Distance <= ? AND Distance >= ? " +
                     "), " +
                     "Filter2 AS (" +
                     "SELECT Listings.LID FROM Listings JOIN AmenitiesListing ON Listings.LID = AmenitiesListing.LID " +

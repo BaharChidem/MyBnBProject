@@ -50,7 +50,7 @@ public class Guest extends User {
             System.exit(0);
         }
         if (guest.Account().equals("[INACTIVE]")) {
-            System.out.println("Not a Active Account");
+            System.out.println("Not an Active Account");
             System.exit(0);
         }
         return guest;
