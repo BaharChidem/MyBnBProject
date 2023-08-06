@@ -9,6 +9,7 @@ public class Listing {
     private double distance;
     private Address address;
 
+    private double price;
     public Listing(int LID,String type, double Longitude, double Latitude, Address address,String status){
         this.LID=LID;
         this.type=type;
@@ -16,6 +17,16 @@ public class Listing {
         this.Latitude=Latitude;
         this.Status=status;
         this.address = address;
+    }
+    public Listing ( int LID,String type, double Longitude, double Latitude ,Address address,double price, String status){
+        this.LID=LID;
+        this.type=type;
+        this.Longitude=Longitude;
+        this.Latitude=Latitude;
+        this.Status=status;
+        this.address = address;
+        this.price = price;
+
     }
     public Listing(int LID,String type, double Longitude, double Latitude, Address address,String status,double distance){
         this.LID=LID;
@@ -36,6 +47,7 @@ public class Listing {
         }
 
     }
+
 
     public static int post_listings(Database data,int host_id,String type, double Longitude, double Latitude, String street, String City, String Postalcode, String Country) throws SQLException {
         int AID = data.add_address(City.trim(),Country.trim(),Postalcode.toUpperCase().trim(),street);
