@@ -675,7 +675,7 @@ public class Database {
     }
 
     public ArrayList<User> get_host(int UID) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("SELECT U.* FROM Reservation R, Listings L, Users U WHERE R.LID = L.LID AND L.UID = U.UID AND R.UID=? AND R.Availability='[PAST RESERVATION]'AND U.Account = '[ACTIVE]'");
+        PreparedStatement stmt = connection.prepareStatement("SELECT U.*, RID FROM Reservation R, Listings L, Users U WHERE R.LID = L.LID AND L.UID = U.UID AND R.UID=? AND R.Availability='[PAST RESERVATION]'AND U.Account = '[ACTIVE]'");
         stmt.setInt(1, UID);
         ResultSet rs = stmt.executeQuery();
         ArrayList<User> hosts = new ArrayList<>();
@@ -689,7 +689,8 @@ public class Database {
             String email = rs.getString("Email");
             String password = rs.getString("Password");
             String account = rs.getString("Account");
-            hosts.add(new User(UID1, SIN, name, doB, occupation, AID, email, password, account));
+            int rid = rs.getInt("RID");
+            hosts.add(new User(UID1, SIN, name, doB, occupation, AID, email, password, account, rid));
         }
         return hosts;
     }
@@ -704,7 +705,7 @@ public class Database {
     }
 
     public ArrayList<User> get_guest(int UID) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("SELECT U.* FROM Reservation R, Listings L, Users U WHERE R.LID = L.LID AND R.UID = U.UID AND L.UID=? AND R.Availability='[PAST RESERVATION]'AND U.Account ='[ACTIVE]'");
+        PreparedStatement stmt = connection.prepareStatement("SELECT U.*,RID FROM Reservation R, Listings L, Users U WHERE R.LID = L.LID AND R.UID = U.UID AND L.UID=? AND R.Availability='[PAST RESERVATION]'AND U.Account ='[ACTIVE]'");
         stmt.setInt(1, UID);
         ResultSet rs = stmt.executeQuery();
         ArrayList<User> hosts = new ArrayList<>();
@@ -718,7 +719,8 @@ public class Database {
             String email = rs.getString("Email");
             String password = rs.getString("Password");
             String account = rs.getString("Account");
-            hosts.add(new User(UID1, SIN, name, doB, occupation, AID, email, password, account));
+            int rid = rs.getInt("RID");
+            hosts.add(new User(UID1, SIN, name, doB, occupation, AID, email, password, account, rid));
         }
         return hosts;
     }
@@ -995,6 +997,16 @@ public class Database {
             amenityID = rs.getInt("Amenities_ID");
         }
         return  amenityID;
+    }
+    public int find_categoryID(String amenity) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT Category_ID FROM Category NATURAL JOIN Amenities where Amenity_Name =?");
+        stmt.setString(1,amenity);
+        ResultSet rs = stmt.executeQuery();
+        int cat = 0;
+        while(rs.next()){
+            cat = rs.getInt("Category_ID");
+        }
+        return  cat;
     }
     public void add_amenity(int lid, int amenityID) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement("INSERT INTO AmenitiesListing (LID, Amenities_ID) VALUES (?, ?)");

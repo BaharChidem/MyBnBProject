@@ -10,6 +10,7 @@ public class User {
     private String email;
     private String password;
     private String account;
+    private int rid;
 
     public User(int UID, String SIN, String name, String DoB, String occupation, int AID, String email, String password, String account){
         this.UID = UID;
@@ -22,6 +23,18 @@ public class User {
         this.password = password;
         this.account=account;
     }
+    public User(int UID, String SIN, String name, String DoB, String occupation, int AID, String email, String password, String account , int rid){
+        this.UID = UID;
+        this.SIN = SIN;
+        this.name = name;
+        this.DoB = DoB;
+        this.occupation = occupation;
+        this.AID = AID;
+        this.email = email;
+        this.password = password;
+        this.account=account;
+        this.rid = rid;
+    }
     public User (User user){
         this.UID = user.UID;
         this.SIN = user.SIN;
@@ -33,6 +46,7 @@ public class User {
         this.password = user.password;
         this.account=user.account;
     }
+
     public static void verify_account( String SIN, String name,String DoB, String occupation,String email, String password, String city, String Country, String postalcode,String street)
     throws IllegalArgumentException
     {
@@ -64,6 +78,10 @@ public class User {
     }
     public String occupation(){
         return occupation;
+    }
+
+    public int rid(){
+        return rid;
     }
     
 }

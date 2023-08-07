@@ -240,7 +240,7 @@ public class Main {
             if (num3 == 1) {
                 double price = recommend_price(lid, type, city, country, postalcode, lat, lon, false);
                 int num_reservations = data.find_num_reservations(type, country, city);
-                calculate_revenue(revenue, price, num_reservations);
+                calculate_revenue(revenue, price, num_reservations, lid);
             }
 
 
@@ -336,9 +336,10 @@ public class Main {
         return revenueIncreaseMap;
     }
 
-    public static void calculate_revenue(HashMap<String, Double> revenue, double price, int num) {
+    public static void calculate_revenue(HashMap<String, Double> revenue, double price, int num, int lid) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         double totalPriceIncrease = 0.0;
+        ArrayList<String> inputs = new ArrayList<>();
         while (!revenue.isEmpty()) {
             for (String amenityName : revenue.keySet()) {
                 System.out.println(amenityName + ": " + revenue.get(amenityName) + "% increase");
@@ -350,6 +351,7 @@ public class Main {
             }
             if (revenue.containsKey(input)) {
                 totalPriceIncrease += revenue.get(input);
+                inputs.add(input);
                 revenue.remove(input);
             } else {
                 System.out.println("Invalid input, please try again.");
@@ -368,6 +370,15 @@ public class Main {
             System.out.println("The expected revenue for the Listing based on the Reservation data : " + (finalPrice * num));
         }
         System.out.println("*********************************************************************************************");
+        System.out.println("Would you like to add these amenities to your listing? (1:YES or 2:NO)");
+        int ans = scanner.nextInt();
+        if(ans == 1){
+            for(int i=0; i<inputs.size(); i++){
+                int cat = data.find_categoryID(inputs.get(i));
+                int amenityid = data.find_amenityID(cat, inputs.get(i));
+                data.add_amenity(lid, amenityid);
+            }
+        }
     }
 
 
@@ -1235,11 +1246,11 @@ public class Main {
     }
 
     public static void print_users(ArrayList<User> users) {
-        System.out.printf("%-5s %-15s %-25s %-25s %n","Index","Name", "Email", "Occupation");
+        System.out.printf("%-5s %-15s %-25s %-25s %-25s %n","Index","Name", "Email", "Occupation","Reservation ID");
         int index = 0;
         // Print each Listing in a table format
         for (User us : users) {
-            System.out.printf("%-5d %-15s %-25s %-25s %n", index++, us.name(), us.email(), us.occupation());
+            System.out.printf("%-5d %-15s %-25s %-25s %-25d %n", index++, us.name(), us.email(), us.occupation(), us.rid());
         }
     }
 
