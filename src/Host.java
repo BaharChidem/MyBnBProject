@@ -26,20 +26,20 @@ public class Host extends User {
         User user = data.get_user(email);
         if (user == null) {
             System.out.println("No Such User");
-            return null;
+            System.exit(0);
         }
         Host host = data.get_host(user);
         if (host == null) {
             System.out.println("No such Host");
-            return null;
+            System.exit(0);
         }
         if (!host.Password().equals(password)) {
             System.out.println("Invalid Password");
-            return null;
+            System.exit(0);
         }
         if (host.Account().equals("[INACTIVE]")) {
             System.out.println("Not a Valid Account");
-            return null;
+            System.exit(0);
         }
 
         return host;

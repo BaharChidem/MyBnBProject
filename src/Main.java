@@ -700,7 +700,7 @@ public class Main {
             System.out.printf("%-5s %-5s %-12s %-12s %-12s %-20s %-15s %-15s %-12s %-12s %-20s %n",
                     "Index", "LID", "Type", "Latitude", "Longitude", "Street", "City", "Country", "Postalcode", "Status", "Distance");
             int index2 = 0;
-            for (Listing listing : coords) {
+            for (Listing listing : listings) {
                 Address address = listing.address();
                 System.out.printf("%-5d %-5d %-12s %-12f %-12f %-20s %-15s %-15s %-12s %-12s %-20.2f %n",
                         index2++, listing.LID(), listing.type(), listing.Latitude(), listing.Longitude(),
@@ -1501,7 +1501,7 @@ public class Main {
             }
 
             if (Logged_into_bnb) {
-                if (current_user.getClass() == Host.class) {
+                if (current_user != null && current_user.getClass() == Host.class) {
                     displayHostMenu();
                     System.out.print("Enter your choice: ");
                     int host_num = scanner.nextInt();
@@ -1512,6 +1512,9 @@ public class Main {
                         continue;
                     }
                     if(host_num == 5){
+                        if(data.get_guest(current_user) != null && data.get_guest(current_user).uid() == current_user.uid()){
+                            data.deactivate_guest(current_user.uid());
+                        }
                         data.deactivate_host(current_user.uid());
                         Logged_into_bnb = false;
                         System.out.println("Your account deleted successfully.");
@@ -1529,6 +1532,9 @@ public class Main {
                         continue;
                     }
                     if(guest_num == 4){
+                        if(data.get_host(current_user) != null && data.get_host(current_user).uid() == current_user.uid()){
+                            data.deactivate_host(current_user.uid());
+                        }
                         data.deactivate_guest(current_user.uid());
                         Logged_into_bnb = false;
                         System.out.println("Your account deleted successfully.");
